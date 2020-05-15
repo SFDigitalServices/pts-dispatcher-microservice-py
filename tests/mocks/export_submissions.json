@@ -1,0 +1,25 @@
+[
+    {
+    "_id": "123",
+    "state": "submitted",
+    "data": {
+        "firstName": "First",
+        "lastName": "Last",
+        "time": "2000-01-01T01:00:00.000Z",
+        "checklist": [
+            "item1",
+            "item2"
+        ],
+        "files": [
+            {"storage": "filesystem", "originalName": "file1.txt"},
+            {"storage": "filesystem", "originalName": "file2.txt"}
+        ],
+        "objects": [
+            {"name": "item one"},
+            {"name": "item two"}
+        ]
+        },
+    "created": "2020-01-01T01:01:01.001Z",
+    "modified": "2020-01-01T01:01:01.001Z"
+    }
+]
