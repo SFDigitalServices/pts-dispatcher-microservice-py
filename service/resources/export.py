@@ -3,6 +3,7 @@ import json
 import datetime
 import os
 import base64
+import logging
 import pytz
 import falcon
 import jsend
@@ -11,6 +12,8 @@ import sentry_sdk
 from ..modules.formio import Formio
 from ..transforms.export_submissions import ExportSubmissionsTransform
 from .hooks import validate_access
+
+ERROR_EXPORT_GENERIC = "Bad Request"
 
 @falcon.before(validate_access)
 class Export():
@@ -41,20 +44,26 @@ class Export():
             end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
             end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
 
-            responses = Formio.get_formio_submission_by_query(
-                {
-                    'created__gte':start_time_utc.isoformat(),
-                    'created__lt':end_time_utc.isoformat(),
-                    'limit':2000*report_days
-                })
+            formio_query = {
+                'created__gte':start_time_utc.isoformat(),
+                'created__lt':end_time_utc.isoformat(),
+                'limit':2000*report_days
+            }
+
+            with sentry_sdk.configure_scope() as scope:
+                scope.set_extra('formio_query', formio_query)
+
+            responses = Formio.get_formio_submission_by_query(formio_query)
 
             submissions_csv = ExportSubmissionsTransform().transform(responses)
-            msg = 'Export '+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
+
+            subject = "Export "+str(start_datetime_obj.date())
+            msg = "Export "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             if send_email:
                 self.email(
-                    "Export "+str(start_datetime_obj.date()),
+                    subject,
                     content=msg,
                     file_name="export-"+str(start_datetime_obj.date())+".csv",
                     file_content=submissions_csv)
@@ -62,16 +71,26 @@ class Export():
             resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
             resp.status = falcon.HTTP_200
 
+            sentry_sdk.capture_message('PTS Dispatch Export', 'info')
+
         #pylint: disable=broad-except
         except Exception as exception:
+            logging.exception('Export.on_get Exception')
             resp.status = falcon.HTTP_500
-            msg_error = repr(exception)
-            sentry_sdk.capture_message(msg_error)
+
+            msg_error = ERROR_EXPORT_GENERIC
+            if exception.__class__.__name__ == 'ValueError':
+                msg_error = "{0}".format(exception)
+
             resp.body = json.dumps(jsend.error(msg_error))
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
         #pylint: disable=too-many-locals
+
+        with sentry_sdk.configure_scope() as scope:
+            scope.set_extra('email.subject', subject)
+
         from_email = sendgrid.helpers.mail.Email(os.environ.get('EXPORT_EMAIL_FROM'))
         to_emails = os.environ.get('EXPORT_EMAIL_TO')
         cc_emails = os.environ.get('EXPORT_EMAIL_CC', None)

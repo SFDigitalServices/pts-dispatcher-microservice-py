@@ -83,6 +83,26 @@ def test_export_exception(client, mock_env):
     # mock_env is a fixture and creates a false positive for pylint
     """Test export exception """
 
+    with patch('service.modules.formio.requests.get') as mock:
+        mock.return_value.status_code = 500
+        mock.side_effect = ValueError('ERROR_TEST')
+
+        response = client.simulate_get(
+            '/export', params={
+                "start_date": "2020-01-01",
+                "days": "1",
+                "send_email": "1"})
+
+        assert response.status_code == 500
+
+        response_json = response.json
+        assert response_json['status'] == 'error'
+
+def test_export_exception_email(client, mock_env):
+    # pylint: disable=unused-argument
+    # mock_env is a fixture and creates a false positive for pylint
+    """Test export email exception """
+
     with open('tests/mocks/export_submissions.json', 'r') as file_obj:
         mock_responses = json.load(file_obj)
 
