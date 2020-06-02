@@ -27,7 +27,8 @@ class Export():
         """
         try:
             if req.params['token'] != os.environ.get('EXPORT_TOKEN'):
-                raise ValueError(ERROR_EXPORT_401)
+                if req.params['token'] != os.environ.get('ACCESS_KEY'):
+                    raise ValueError(ERROR_EXPORT_401)
 
             timezone = pytz.timezone('America/Los_Angeles')
 
