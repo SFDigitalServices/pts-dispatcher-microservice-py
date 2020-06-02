@@ -4,6 +4,7 @@ import datetime
 import os
 import base64
 import logging
+import re
 import pytz
 import falcon
 import jsend
@@ -76,12 +77,15 @@ class Export():
             msg = subject_name
             msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
 
+            file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
+            file_name += "-"+str(start_datetime_obj.date())+".csv"
+
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             if send_email:
                 self.email(
                     subject,
                     content=msg,
-                    file_name="export-"+str(start_datetime_obj.date())+".csv",
+                    file_name=file_name,
                     file_content=submissions_csv)
 
             resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
