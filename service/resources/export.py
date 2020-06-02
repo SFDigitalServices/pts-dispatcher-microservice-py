@@ -14,6 +14,7 @@ from ..transforms.export_submissions import ExportSubmissionsTransform
 from .hooks import validate_access
 
 ERROR_EXPORT_GENERIC = "Bad Request"
+ERROR_EXPORT_401 = "Unauthorized"
 
 @falcon.before(validate_access)
 class Export():
@@ -25,6 +26,9 @@ class Export():
         return export message and response if successful
         """
         try:
+            if req.params['token'] != os.environ.get('EXPORT_TOKEN'):
+                raise ValueError(ERROR_EXPORT_401)
+
             timezone = pytz.timezone('America/Los_Angeles')
 
             yesterday = datetime.datetime.now(timezone) - datetime.timedelta(days=1)
@@ -44,6 +48,14 @@ class Export():
             end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
             end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
 
+            # form id
+            form_id = req.params['form_id']
+
+            # subject name
+            subject_name = "Export"
+            if 'name' in req.params:
+                subject_name = req.params['name'] + ' ' + subject_name
+
             formio_query = {
                 'created__gte':start_time_utc.isoformat(),
                 'created__lt':end_time_utc.isoformat(),
@@ -51,14 +63,17 @@ class Export():
             }
 
             with sentry_sdk.configure_scope() as scope:
+                scope.set_extra('formio_id', form_id)
                 scope.set_extra('formio_query', formio_query)
 
-            responses = Formio.get_formio_submission_by_query(formio_query)
+            responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
 
             submissions_csv = ExportSubmissionsTransform().transform(responses)
 
-            subject = "Export "+str(start_datetime_obj.date())
-            msg = "Export "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
+            subject = subject_name+" "+str(start_datetime_obj.date())
+
+            msg = subject_name
+            msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             if send_email:
