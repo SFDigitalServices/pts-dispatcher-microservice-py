@@ -12,12 +12,10 @@ import sendgrid
 import sentry_sdk
 from ..modules.formio import Formio
 from ..transforms.export_submissions import ExportSubmissionsTransform
-from .hooks import validate_access
 
 ERROR_EXPORT_GENERIC = "Bad Request"
 ERROR_EXPORT_401 = "Unauthorized"
 
-@falcon.before(validate_access)
 class Export():
     """Export class"""
     def on_get(self, req, resp):
