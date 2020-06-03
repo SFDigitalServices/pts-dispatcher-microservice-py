@@ -68,18 +68,21 @@ class Export():
 
             responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
 
-            submissions_csv = ExportSubmissionsTransform().transform(responses)
-
-            subject = subject_name+" "+str(start_datetime_obj.date())
-
             msg = subject_name
-            msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat())
-
-            file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
-            file_name += "-"+str(start_datetime_obj.date())+".csv"
+            msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat()) + ". "
+            msg += str(len(responses)) + " Submissions"
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             if send_email:
+                subject = subject_name+" "+str(start_datetime_obj.date())
+
+                submissions_csv = None
+                if len(responses) > 0:
+                    submissions_csv = ExportSubmissionsTransform().transform(responses)
+
+                file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
+                file_name += "-"+str(start_datetime_obj.date())+".csv"
+
                 self.email(
                     subject,
                     content=msg,
