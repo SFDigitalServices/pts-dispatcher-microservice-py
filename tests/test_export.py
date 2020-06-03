@@ -25,25 +25,13 @@ CLIENT_ENV = {
 @pytest.fixture()
 def client():
     """ client fixture """
-    return testing.TestClient(app=service.microservice.start_service(), headers=CLIENT_HEADERS)
+    return testing.TestClient(app=service.microservice.start_service())
 
 @pytest.fixture
 def mock_env(monkeypatch):
     """ mock environment access key """
     for key in CLIENT_ENV:
         monkeypatch.setenv(key, CLIENT_ENV[key])
-
-@pytest.fixture
-def mock_env_no_access_key(monkeypatch):
-    """ mock environment with no access key """
-    monkeypatch.delenv("ACCESS_KEY", raising=False)
-
-def test_export_no_access_key(client, mock_env_no_access_key):
-    # pylint: disable=unused-argument
-    # mock_env_no_access_key is a fixture and creates a false positive for pylint
-    """Test welcome request with no ACCESS_key environment var set"""
-    response = client.simulate_get('/export')
-    assert response.status_code == 403
 
 def test_export(client, mock_env):
     # pylint: disable=unused-argument
