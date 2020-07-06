@@ -30,8 +30,8 @@ class ExportSubmissionsTransform(TransformBase):
             # flatten list values
             if isinstance(data[key], list):
                 if len(data[key]) > 0:
-                    if isinstance(data[key][0], str):
-                        output[key] = ', '.join(data[key])
+                    if isinstance(data[key][0], (int, str)):
+                        output[key] = ', '.join(map(str, data[key]))
                     else:
                         file_names = []
                         for index, val in enumerate(data[key]):
