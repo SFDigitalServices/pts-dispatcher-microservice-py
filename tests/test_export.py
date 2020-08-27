@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from falcon import testing
 from service.transforms.transform import TransformBase
+from slack import WebClient
 import service.microservice
 
 CLIENT_HEADERS = {
@@ -16,6 +17,7 @@ CLIENT_ENV = {
     "FORMIO_BASE_URL": "https://localhost",
     "SENDGRID_API_KEY": "abc",
     "EXPORT_TOKEN": "xyz",
+    "SLACK_API_TOKEN": "",
     "EXPORT_EMAIL_FROM": "",
     "EXPORT_EMAIL_TO": "to@localhost",
     "EXPORT_EMAIL_CC": "cc@localhost",
@@ -139,7 +141,18 @@ def test_export_exception_email(client, mock_env):
         response_json = response.json
         assert response_json['status'] == 'error'
 
+def test_send_to_slack():
+    """ send Slack a notifiction """
+    client = WebClient(token=CLIENT_ENV['SLACK_API_TOKEN'])
+    message = 'test from PTS dispatcher'
+    response = client.chat_postMessage(
+        channel='#microservices_daily_notifications_test',
+        text=message)
+
+    assert response == 'Got an error: is_archived'
+
 def test_transform_base():
     """ Test TransformBase transform method """
     data = "test"
-    assert TransformBase().transform(data) == data
+    sep = '|'
+    assert TransformBase().transform(data, sep) == data
