@@ -4,7 +4,7 @@ import requests
 
 # pylint: disable=too-few-public-methods
 class Formio():
-    """Functions related to interacting with Form.io forms."""
+    """Functions related to interacting with Form.io forms. """
 
     @staticmethod
     def get_formio_submission_by_query(

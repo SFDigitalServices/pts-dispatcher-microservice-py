@@ -24,7 +24,7 @@ class TransformBase():
     @staticmethod
     def pretty_time(value, zone='America/Los_Angeles'):
         """
-        return a better human readable time string
+        return a better human readable time string 
         """
         time = dateutil.parser.parse(value)
         timezone = pytz.timezone(zone)

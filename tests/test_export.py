@@ -17,7 +17,7 @@ CLIENT_ENV = {
     "FORMIO_BASE_URL": "https://localhost",
     "SENDGRID_API_KEY": "abc",
     "EXPORT_TOKEN": "xyz",
-    "SLACK_API_TOKEN": "",
+    "SLACK_API_TOKEN": " ",
     "EXPORT_EMAIL_FROM": "",
     "EXPORT_EMAIL_TO": "to@localhost",
     "EXPORT_EMAIL_CC": "cc@localhost",

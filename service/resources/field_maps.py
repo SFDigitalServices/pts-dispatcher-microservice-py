@@ -8,7 +8,7 @@ class FieldMaps():
 
     @staticmethod
     def map_state_code(key):
-        """ maps state to state code """
+        """ maps state to state code  """
         with open(FieldMaps.cur_path + '/data/states.json', 'r') as file:
             state_map = json.loads(file.read())
 

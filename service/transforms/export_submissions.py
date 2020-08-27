@@ -20,7 +20,7 @@ class ExportSubmissionsTransform(TransformBase):
 
     def get_data(self, submission):
         """
-        Get data from submission object
+        Get data from submission object 
         """
         output = {}
         data = submission['data']
