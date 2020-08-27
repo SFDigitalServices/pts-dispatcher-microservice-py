@@ -24,7 +24,7 @@ class Formio():
             'Content-Type': 'application/json'
         }
 
-        url = '{base_url}/{form_id}/{submission_endpoint}'.format(
+        url = '{base_url}/form/{form_id}/{submission_endpoint}'.format(
             base_url=base_url,
             form_id=form_id,
             submission_endpoint='submission'

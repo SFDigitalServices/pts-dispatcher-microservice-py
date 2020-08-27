@@ -19,8 +19,6 @@ pylint = "*"
 pytz = "*"
 pandas = "*"
 sendgrid = "*"
-toolz = "*"
-slackclient = "*"
 
 [requires]
 python_version = "3.7"

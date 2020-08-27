@@ -1,14 +1,11 @@
 """ TransformBase module """
 #pylint: disable=too-few-public-methods,no-self-use
 import re
-import dateutil.parser
-import pytz
 
 class TransformBase():
     """ Base module for Transforms """
 
-    @staticmethod
-    def transform(data, sep):
+    def transform(self, data):
         """
         abstract transform function
         given input, does some transformation and return output
@@ -20,7 +17,6 @@ class TransformBase():
     def pretty_string(name):
         """ Change name from camelCase to words """
         return re.sub(r'(?<!^)(?=[A-Z])', ' ', name).title()
-
     @staticmethod
     def pretty_time(value, zone='America/Los_Angeles'):
         """
@@ -47,4 +43,3 @@ class TransformBase():
         except:
             pass
         return False
-
