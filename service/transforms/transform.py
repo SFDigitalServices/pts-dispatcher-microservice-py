@@ -17,6 +17,11 @@ class TransformBase():
         return output
 
     @staticmethod
+    def pretty_app_num(appnum):
+        """ strip dash(-) from the application number  """
+        return appnum.replace('-', '')
+
+    @staticmethod
     def pretty_string(name):
         """ Change name from camelCase to words """
         return re.sub(r'(?<!^)(?=[A-Z])', ' ', name).title()

@@ -1,5 +1,5 @@
 {
-    ["1", "1-HOUR FIRE RATING"],
-    ["F","FIRE-RESISTANT"],
-    ["N", "NO FIRE RATING"]
+    "1-HOUR FIRE RATING": "1",
+    "FIRE-RESISTANT": "F",
+    "NO FIRE RATING": "N"
 }

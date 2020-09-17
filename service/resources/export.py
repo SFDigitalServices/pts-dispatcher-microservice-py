@@ -15,7 +15,7 @@ import sentry_sdk
 from slack import WebClient
 from slack.errors import SlackApiError
 from .hooks import validate_access
-from ..modules.formio import Formio
+from ..modules.permit_applications import PermitApplication
 from ..transforms.export_submissions import ExportSubmissionsTransform
 
 ERROR_EXPORT_GENERIC = "Bad Request"
@@ -48,10 +48,9 @@ class Export():
             start_time_utc = timezone.localize(start_datetime_obj).astimezone(pytz.UTC)
 
             # how many days we want included in report starting from start_date
-            report_days = int(req.params['days']) if 'days' in req.params else 1
-
-            end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
-            end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
+            #report_days = int(req.params['days']) if 'days' in req.params else 1
+            #end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
+            #end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
 
             # form id
             form_id = None
@@ -64,18 +63,17 @@ class Export():
                 subject_name = req.params['name'] + ' ' + subject_name
 
             formio_query = {
-                'created__gte':start_time_utc.isoformat(),
-                'created__lt':end_time_utc.isoformat(),
-                'limit':2000*report_days
+                'actionState': 'Export to PTS'
             }
 
             with sentry_sdk.configure_scope() as scope:
                 scope.set_extra('formio_id', form_id)
                 scope.set_extra('formio_query', formio_query)
 
-            responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
-            #file2 = open('response.txt', 'w')
-            #print(responses, file = file2)
+            #responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
+            responses = PermitApplication.get_applications_by_query(formio_query)
+            file2 = open('response.txt', 'w')
+            print(responses, file = file2)
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
@@ -85,11 +83,11 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-            #file1 = open('sftp_export.txt', 'w')
-            #file1.write(submissions_csv)
+            file1 = open('sftp_export.txt', 'w')
+            file1.write(submissions_csv)
 
             msg = subject_name
-            msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat()) + ". "
+            msg += " with export to PTS status, "
             msg += str(len(responses)) + " Submissions"
 
             file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)

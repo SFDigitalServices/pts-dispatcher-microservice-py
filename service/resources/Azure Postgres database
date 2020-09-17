@@ -1,0 +1,33 @@
+I'm going to show the 2 pieces of technology we used for the Health Check form.  First, we needed a secure place to store the form submissions, there are some choices but we chose Azure for couple of reasons. 
+
+
+Azure Postgres database
+    couple of reasons:  1.) city's azure is on the government cloud, that gives some level of confidence in terms of security. There are many articles from microsoft that talks about compliance and security. 2.) The city is paying alot for Azure, probably in millions and it's under used. I believe DT also provide some support on the platform, there is a team looking at the platform for sure.  3.) no procurement!
+
+    I choose postgres as the database, if you want to use other database on the platform, you can extend the formio-db-microservice or clone from it. The setup is pretty straight forward, I documented on the Confluence page. Now I'm going to show the setup on form.io. 
+    
+    ** show the form.io webhook, run a submission, check the database, 
+
+    To keep the webhook generic, I'm storing form data as a json object ** show the code.  There may be times when you need to store form data as is, then you can either extend or roll your own microservice. I will elaborate on this in the PowerBi reporting part. 
+
+PowerBi reporting
+
+** Refer to the confluence page to get started
+
+** show how to connect to the database.
+
+** show steps to parse the JSON data from the database
+
+** show access control, RLSuser spreadsheet <--> healthcheck table
+    ** Show data sources(manaeg data source seettings) in "Transform Data", 
+    ** show Manage Relations for Department name matching
+    ** show Manage Roles for Email matching to AD->principal name
+
+** show the final report before publishing.
+
+** show the report on the browser
+    ** show security seetting
+    ** show scheduled refresh
+
+If your report needs real time report, use Direct Query when setting up the initial database connection. Direct Query does not work with JSON columns
+

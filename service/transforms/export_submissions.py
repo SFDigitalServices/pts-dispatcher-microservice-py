@@ -80,12 +80,16 @@ class ExportSubmissionsTransform(TransformBase):
             if self.datetime_valid(data[key]):
                 output[key] = self.pretty_time(data[key])
             else:
-                # format phone numbers
-                if FieldConfigs.check_phone_fields(key):
-                    output[key] = self.pretty_phonenumber(data[key])
-                # format states
-                elif FieldConfigs.check_state_fields(key):
-                    output[key] = FieldMaps.map_state_code(data[key])
+                field_key = FieldConfigs.get_field_key(key)
+                phone_appnum_key = FieldConfigs.get_phone_appnum_field(key)
+                if field_key is not None:
+                    output[key] = FieldMaps.map_key_value(field_key, data[key])
+                # format phone numbers and building application number
+                elif phone_appnum_key is not None:
+                    if phone_appnum_key == 'phone_fields':
+                        output[key] = self.pretty_phonenumber(data[key])
+                    elif phone_appnum_key == 'appnum_fields':
+                        output[key] = self.pretty_app_num(data[key])
                 # replace \n with \t, \n messes up to_csv()
                 elif isinstance(data[key], (str, bytes)):
                     output[key] = data[key].replace('\n', '\t')
