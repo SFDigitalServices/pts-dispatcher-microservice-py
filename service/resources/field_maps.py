@@ -1,6 +1,9 @@
+""" Custom field mapping building permit api """
+
 import os
 import json
 
+# pylint: disable=too-few-public-methods
 class FieldMaps():
     """ class to handle States abbreviation """
 
@@ -20,11 +23,11 @@ class FieldMaps():
     def get_map_file(argument):
         """ python switch statement to get map file name """
         switcher = {
-                'state_fields': 'states.json',
-                'building_use':'building_use.json',
-                'fire_rating':'fire_rating.json',
-                'construction_type':'construction_type.json',
-                'occupancy_code':'occupancy_code.json',
-                'street_suffix_fields':'street_suffix.json'
-             }
+            'state_fields': 'states.json',
+            'building_use':'building_use.json',
+            'fire_rating':'fire_rating.json',
+            'construction_type':'construction_type.json',
+            'occupancy_code':'occupancy_code.json',
+            'street_suffix_fields':'street_suffix.json'
+        }
         return switcher.get(argument, "")

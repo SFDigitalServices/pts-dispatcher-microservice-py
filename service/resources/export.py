@@ -1,12 +1,11 @@
 """Welcome export module"""
+import os
 import json
 import datetime
-import requests
-from requests.exceptions import HTTPError
-import os
 import base64
 import logging
 import re
+import requests
 import pytz
 import falcon
 import jsend
@@ -14,7 +13,6 @@ import sendgrid
 import sentry_sdk
 from slack import WebClient
 from slack.errors import SlackApiError
-from .hooks import validate_access
 from ..modules.permit_applications import PermitApplication
 from ..transforms.export_submissions import ExportSubmissionsTransform
 
@@ -197,6 +195,7 @@ class Export():
             response = client.chat_postMessage(
                 channel='#microservices_daily_notifications_test',
                 text=message)
+            print(response)
         except SlackApiError as err:
             # You will get a SlackApiError if "ok" is False
             assert err.response["ok"] is False

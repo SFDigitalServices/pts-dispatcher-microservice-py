@@ -8,15 +8,6 @@ class TransformBase():
     """ Base module for Transforms """
 
     @staticmethod
-    def transform(data, sep):
-        """
-        abstract transform function
-        given input, does some transformation and return output
-        """
-        output = data
-        return output
-
-    @staticmethod
     def pretty_app_num(appnum):
         """ strip dash(-) from the application number  """
         return appnum.replace('-', '')
@@ -39,7 +30,7 @@ class TransformBase():
     @staticmethod
     def pretty_phonenumber(value):
         """ strip non-digit characters """
-        return re.sub('[^0-9]','', value)
+        return re.sub('[^0-9]', '', value)
 
     @staticmethod
     def datetime_valid(dt_str):
@@ -52,4 +43,3 @@ class TransformBase():
         except:
             pass
         return False
-

@@ -1,6 +1,5 @@
 """ Export Submissions Transform module """
 #pylint: disable=too-few-public-methods
-import json
 import pandas as pd
 from .transform import TransformBase
 from ..resources.field_configs import FieldConfigs
@@ -18,6 +17,7 @@ class ExportSubmissionsTransform(TransformBase):
         output = self.to_csv(output, sep)
         return output
 
+    # pylint: disable=R0201
     def get_data(self, submission):
         """
         Get data from submission object
@@ -67,6 +67,7 @@ class ExportSubmissionsTransform(TransformBase):
 
         return dataframe
 
+    # pylint: disable=R0201
     def to_csv(self, dataframe, sep=','):
         """
         Return CSV from DataFrame

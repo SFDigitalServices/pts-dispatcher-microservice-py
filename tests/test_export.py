@@ -4,7 +4,6 @@ import json
 from unittest.mock import patch
 import pytest
 from falcon import testing
-from slack import WebClient
 import service.microservice
 
 CLIENT_HEADERS = {
@@ -116,7 +115,7 @@ def test_export_exception_access(client, mock_env):
 
     response = client.simulate_get(
         '/export', params={
-           "actionState": "Export to PTS",
+            "actionState": "Export to PTS",
             "token": "xyz",
             "send_email": "1"})
 
