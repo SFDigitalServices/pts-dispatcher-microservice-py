@@ -1,5 +1,4 @@
-import os
-import ast
+""" Custom field configurations from form.io """
 
 class FieldConfigs():
     """ Takes field configs from environment var as JSON.
@@ -8,26 +7,26 @@ class FieldConfigs():
      """
 
     # will move this to client side in the POST body when we implement do_post()
-    field_configs = ast.literal_eval(os.getenv('FIELD_CONFIGS'))
+    map_field_configs = {
+        'street_suffix_fields': {'projectAddressStreetType'},
+        'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}
+    }
+    pretty_field_configs = {
+        'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber'},
+        'appnum_fields': {'buildingPermitApplicationNumber'},
+    }
 
     @staticmethod
-    def get_field_key(value):
+    def get_field_key(value, field_type):
         """ get the key from field_config based on value """
-        for index in range(len(FieldConfigs.field_configs)):
-            for field_key in FieldConfigs.field_configs[index]:
-                # exclude fields that don't need mapping file
-                if field_key == 'appnum_fields' or field_key == 'phone_fields':
-                    return None
-                if value in FieldConfigs.field_configs[index][field_key]:
-                    return field_key
-        return None
+        if field_type == 'map':
+            field_configs = FieldConfigs.map_field_configs
+        else:
+            field_configs = FieldConfigs.pretty_field_configs
 
-    @staticmethod
-    def get_phone_appnum_field(key):
-        """ check for phone number fields """
-        for field in FieldConfigs.field_configs:
-            if key in field['phone_fields']:
-                return 'phone_fields'
-            elif key in field['appnum_fields']:
-                return 'appnum_fields'
+        # loop through the Field Config variables to find the key, so value ="buildingPermitApplicationNumber" returns "appnum_fields"
+        for field_key, field_value in field_configs.items():
+            if value in field_value:
+                return field_key
+
         return None

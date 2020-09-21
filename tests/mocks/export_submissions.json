@@ -6,6 +6,13 @@
         "firstName": "First",
         "lastName": "Last",
         "time": "2000-01-01T01:00:00.000Z",
+        "ownerState": "california",
+        "applicantPhoneNumber": "(415)555-55555",
+        "buildingPermitApplicationNumber": "123-45678",
+        "priorityProjectSelections": {
+            "isInDevelopmentAgreement": "FALSE",
+            "is100AffordableHousing": "True"
+        },
         "checklist": [
             "item1",
             "item2"

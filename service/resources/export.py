@@ -40,22 +40,6 @@ class Export():
             start_datetime_obj = datetime.datetime.combine(
                 yesterday, datetime.datetime.min.time())
 
-            # if start_date provided
-            if 'start_date' in req.params:
-                start_datetime_obj = datetime.datetime.strptime(
-                    req.params['start_date'], '%Y-%m-%d')
-
-            start_time_utc = timezone.localize(start_datetime_obj).astimezone(pytz.UTC)
-
-            # how many days we want included in report starting from start_date
-            #report_days = int(req.params['days']) if 'days' in req.params else 1
-            #end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
-            #end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
-
-            # form id
-            form_id = None
-            if 'form_id' in req.params:
-                form_id = req.params['form_id']
 
             # subject name
             subject_name = "Export"
@@ -67,13 +51,10 @@ class Export():
             }
 
             with sentry_sdk.configure_scope() as scope:
-                scope.set_extra('formio_id', form_id)
                 scope.set_extra('formio_query', formio_query)
 
             #responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
             responses = PermitApplication.get_applications_by_query(formio_query)
-            file2 = open('response.txt', 'w')
-            print(responses, file = file2)
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
@@ -83,8 +64,6 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-            file1 = open('sftp_export.txt', 'w')
-            file1.write(submissions_csv)
 
             msg = subject_name
             msg += " with export to PTS status, "
@@ -136,21 +115,22 @@ class Export():
         }
 
         params = {
-            'remotepath': '/dbi-external/aduxfer',
+            'remotepath': '', # user home folder
             'filename': file_name
         }
-        self.send_to_slack("<@henry> PTS dispatcher file export")
-        try:
-            result = requests.post(
-                os.environ.get('SFTP_ENDPOINT'),
-                files=files,
-                headers=headers,
-                params=params)
-            print(result.content)
-        except HTTPError as http_err:
-             print("{0}".format(http_err))
-        except Exception as err:
-             print("{0}".format(err))
+
+        result = requests.post(
+            os.environ.get('SFTP_ENDPOINT'),
+            files=files,
+            headers=headers,
+            params=params)
+
+        if result.status_code != 200:
+            slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()['message']
+        else:
+            slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()['data']['message']
+        self.send_to_slack("<@henry> PTS dispatcher file export: " + slack_msg)
+        return result
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
@@ -217,9 +197,10 @@ class Export():
             response = client.chat_postMessage(
                 channel='#microservices_daily_notifications_test',
                 text=message)
-
+            return response
         except SlackApiError as err:
             # You will get a SlackApiError if "ok" is False
             assert err.response["ok"] is False
             assert err.response["error"]  # str like 'invalid_auth', 'channel_not_found'
-            print(f"Got an error: {err.response['error']}")
+            error = ("{0}".format(err.response['error']))
+            print(f"Got an error: {error}")

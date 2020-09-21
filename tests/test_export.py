@@ -4,7 +4,6 @@ import json
 from unittest.mock import patch
 import pytest
 from falcon import testing
-from service.transforms.transform import TransformBase
 from slack import WebClient
 import service.microservice
 
@@ -13,8 +12,8 @@ CLIENT_HEADERS = {
 }
 CLIENT_ENV = {
     "ACCESS_KEY": CLIENT_HEADERS["ACCESS_KEY"],
-    "FORMIO_API_KEY": "abcdefg",
-    "FORMIO_BASE_URL": "https://localhost",
+    "X_APIKEY": "abcdefg",
+    "API_BASE_URL": "https://localhost",
     "SENDGRID_API_KEY": "abc",
     "EXPORT_TOKEN": "xyz",
     "SLACK_API_TOKEN": "",
@@ -45,9 +44,29 @@ def test_export(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
+
+        with patch('service.resources.export.Export.sftp') as mock_sftp:
+            mock_sftp.return_value.status_code = 200
+            mock_sftp.return_value.body = "Data"
+
+            response = client.simulate_get(
+                '/export', params={
+                    "actionState": "Export to PTS",
+                    "token": "xyz",
+                    "start_date": "2020-01-01",
+                    "name": "Building Permit Application",
+                    "sftp_upload": "1"})
+
+            assert response.status_code == 200
+
+            response_json = response.json
+            assert response_json['status'] == 'success'
+
+            assert 'data' in response_json
+            assert 'responses' in response_json['data']
 
         with patch('service.resources.export.Export.send_email') as mock_send_email:
             mock_send_email.return_value.status_code = 202
@@ -56,11 +75,10 @@ def test_export(client, mock_env):
 
             response = client.simulate_get(
                 '/export', params={
-                    "start_date": "2020-01-01",
-                    "days": "1",
-                    "form_id": "123",
-                    "name": "Test",
+                    "actionState": "Export to PTS",
                     "token": "xyz",
+                    "start_date": "2020-01-01",
+                    "name": "Building Permit Application",
                     "send_email": "1"})
 
             assert response.status_code == 200
@@ -76,16 +94,13 @@ def test_export_exception(client, mock_env):
     # mock_env is a fixture and creates a false positive for pylint
     """Test export exception """
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 500
         mock.side_effect = ValueError('ERROR_TEST')
 
         response = client.simulate_get(
             '/export', params={
-                "start_date": "2020-01-01",
-                "days": "1",
-                "form_id": "123",
-                "name": "Test",
+                "actionState": "Export to PTS",
                 "token": "xyz",
                 "send_email": "1"})
 
@@ -101,17 +116,13 @@ def test_export_exception_access(client, mock_env):
 
     response = client.simulate_get(
         '/export', params={
-            "start_date": "2020-01-01",
-            "days": "1",
-            "form_id": "123",
-            "name": "Test",
-            "token": "abc",
+           "actionState": "Export to PTS",
+            "token": "xyz",
             "send_email": "1"})
-
-    assert response.status_code == 500
 
     response_json = response.json
     assert response_json['status'] == 'error'
+    assert response_json['message'] == 'Bad Request'
 
 def test_export_exception_email(client, mock_env):
     # pylint: disable=unused-argument
@@ -123,16 +134,13 @@ def test_export_exception_email(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
         response = client.simulate_get(
             '/export', params={
-                "start_date": "2020-01-01",
-                "days": "1",
-                "form_id": "123",
-                "name": "Test",
+                "actionState": "Export to PTS",
                 "token": "xyz",
                 "send_email": "1"})
 
@@ -141,18 +149,27 @@ def test_export_exception_email(client, mock_env):
         response_json = response.json
         assert response_json['status'] == 'error'
 
-def test_send_to_slack():
-    """ send Slack a notifiction """
-    client = WebClient(token=CLIENT_ENV['SLACK_API_TOKEN'])
-    message = 'test from PTS dispatcher'
-    response = client.chat_postMessage(
-        channel='#microservices_daily_notifications_test',
-        text=message)
+def test_export_exception_sftp(client, mock_env):
+    # pylint: disable=unused-argument
+    # mock_env is a fixture and creates a false positive for pylint
+    """Test export sftp exception """
 
-    assert response == 'Got an error: is_archived'
+    with open('tests/mocks/export_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
 
-def test_transform_base():
-    """ Test TransformBase transform method """
-    data = "test"
-    sep = '|'
-    assert TransformBase().transform(data, sep) == data
+    assert mock_responses
+
+    with patch('service.modules.permit_applications.requests.get') as mock:
+        mock.return_value.status_code = 200
+        mock.return_value.json.return_value = mock_responses
+
+        response = client.simulate_get(
+            '/export', params={
+                "actionState": "Export to PTS",
+                "token": "xyz",
+                "send_email": "1"})
+
+        assert response.status_code == 500
+
+        response_json = response.json
+        assert response_json['status'] == 'error'

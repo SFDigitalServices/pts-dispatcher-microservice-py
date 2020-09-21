@@ -39,7 +39,7 @@ class TransformBase():
     @staticmethod
     def pretty_phonenumber(value):
         """ strip non-digit characters """
-        re.sub(r"\D", "", value)
+        return re.sub('[^0-9]','', value)
 
     @staticmethod
     def datetime_valid(dt_str):

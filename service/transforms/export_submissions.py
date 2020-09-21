@@ -80,8 +80,8 @@ class ExportSubmissionsTransform(TransformBase):
             if self.datetime_valid(data[key]):
                 output[key] = self.pretty_time(data[key])
             else:
-                field_key = FieldConfigs.get_field_key(key)
-                phone_appnum_key = FieldConfigs.get_phone_appnum_field(key)
+                field_key = FieldConfigs.get_field_key(key, 'map')
+                phone_appnum_key = FieldConfigs.get_field_key(key, 'pretty')
                 if field_key is not None:
                     output[key] = FieldMaps.map_key_value(field_key, data[key])
                 # format phone numbers and building application number
