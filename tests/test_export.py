@@ -167,7 +167,7 @@ def test_export_exception_sftp(client, mock_env):
             '/export', params={
                 "actionState": "Export to PTS",
                 "token": "xyz",
-                "send_email": "1"})
+                "sftp_upload": "1"})
 
         assert response.status_code == 500
 
