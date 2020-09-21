@@ -123,12 +123,8 @@ class Export():
             headers=headers,
             params=params)
 
-        if result.status_code != 200:
-            slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()['message']
-        else:
-            slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()['data']['message']
+        slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()
         self.send_to_slack("<@henry> PTS dispatcher file export: " + slack_msg)
-        return result
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
