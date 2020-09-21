@@ -192,10 +192,9 @@ class Export():
         client = WebClient(token=os.environ['SLACK_API_TOKEN'])
 
         try:
-            response = client.chat_postMessage(
+            client.chat_postMessage(
                 channel='#microservices_daily_notifications_test',
                 text=message)
-            print(response)
         except SlackApiError as err:
             # You will get a SlackApiError if "ok" is False
             assert err.response["ok"] is False

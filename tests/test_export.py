@@ -47,26 +47,6 @@ def test_export(client, mock_env):
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
-        with patch('service.resources.export.Export.sftp') as mock_sftp:
-            mock_sftp.return_value.status_code = 200
-            mock_sftp.return_value.body = "Data"
-
-            response = client.simulate_get(
-                '/export', params={
-                    "actionState": "Export to PTS",
-                    "token": "xyz",
-                    "start_date": "2020-01-01",
-                    "name": "Building Permit Application",
-                    "sftp_upload": "1"})
-
-            assert response.status_code == 200
-
-            response_json = response.json
-            assert response_json['status'] == 'success'
-
-            assert 'data' in response_json
-            assert 'responses' in response_json['data']
-
         with patch('service.resources.export.Export.send_email') as mock_send_email:
             mock_send_email.return_value.status_code = 202
             mock_send_email.return_value.body = "Content"
@@ -148,7 +128,7 @@ def test_export_exception_email(client, mock_env):
         response_json = response.json
         assert response_json['status'] == 'error'
 
-def test_export_exception_sftp(client, mock_env):
+def test_export_sftp(client, mock_env):
     # pylint: disable=unused-argument
     # mock_env is a fixture and creates a false positive for pylint
     """Test export sftp exception """
@@ -168,7 +148,7 @@ def test_export_exception_sftp(client, mock_env):
                 "token": "xyz",
                 "sftp_upload": "1"})
 
-        assert response.status_code == 500
+        assert response.status_code == 200
 
         response_json = response.json
-        assert response_json['status'] == 'error'
+        assert response_json['status'] == 'success'
