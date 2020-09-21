@@ -148,7 +148,7 @@ def test_export_sftp(client, mock_env):
                 "token": "xyz",
                 "sftp_upload": "1"})
 
-        assert response.status_code == 500
+        assert response.status_code == 200
 
         response_json = response.json
-        assert response_json['status'] == 'error'
+        assert response_json['status'] == 'success'

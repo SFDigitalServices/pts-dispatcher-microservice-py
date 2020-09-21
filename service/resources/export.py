@@ -123,7 +123,7 @@ class Export():
             headers=headers,
             params=params)
 
-        slack_msg = "Status: " + str(result.status_code) + ", message: " + result.json()
+        slack_msg = "Status: " + str(result.status_code) + ", message: " + json.dumps(result.json())
         self.send_to_slack("<@henry> PTS dispatcher file export: " + slack_msg)
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
@@ -189,7 +189,7 @@ class Export():
 
         try:
             client.chat_postMessage(
-                channel='#microservices_daily_notifications_test',
+                channel='#microservice_daily_notifications', # move #channel to post data
                 text=message)
         except SlackApiError as err:
             # You will get a SlackApiError if "ok" is False
