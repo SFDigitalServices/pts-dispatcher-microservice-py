@@ -69,14 +69,15 @@ def test_export(client, mock_env):
             assert 'data' in response_json
             assert 'responses' in response_json['data']
 
-        with patch('service.resources.export.Export.sftp') as mock_send_email:
-            mock_send_email.return_value.status_code = 200
-            mock_send_email.return_value.body = "Data"
+        with patch('service.resources.export.Export.sftp') as mock_sftp:
+            mock_sftp.return_value.status_code = 200
+            mock_sftp.return_value.body = "Data"
 
             response = client.simulate_get(
                 '/export', params={
                     "actionState": "Export to PTS",
                     "token": "xyz",
+                    "form_id": "123",
                     "start_date": "2020-01-01",
                     "name": "Building Permit Application",
                     "sftp_upload": "1"})
@@ -174,7 +175,7 @@ def test_export_exception_sftp(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.permit_applications.requests.get') as mock:
+    with patch('service.modules.formio.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 

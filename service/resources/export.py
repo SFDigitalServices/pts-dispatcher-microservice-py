@@ -75,12 +75,12 @@ class Export():
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
+            submissions_csv = None
             if sftp_upload:
                 submissions_csv = ExportSubmissionsTransform().transform(responses)
             if send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
 
-                submissions_csv = None
                 if len(responses) > 0:
                     submissions_csv = ExportSubmissionsTransform().transform(responses)
 
@@ -135,6 +135,7 @@ class Export():
             headers=headers,
             params=params)
         print(result)
+
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
         #pylint: disable=too-many-locals
