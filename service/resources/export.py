@@ -50,8 +50,6 @@ class Export():
             end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
             end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
 
-            self.send_to_slack("<@henry> PTS dispatcher file export: ", None, None)
-
             # form id
             form_id = req.params['form_id']
 
