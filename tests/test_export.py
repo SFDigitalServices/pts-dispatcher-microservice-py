@@ -198,5 +198,4 @@ def test_sftp():
     response = Export().sftp('some test data', 'testfile')
 
     assert response.status_code == 401
-    response_json = response.json
-    assert response_json["status"] == 'error'
+
