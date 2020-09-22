@@ -97,7 +97,7 @@ def test_export_exception_access(client, mock_env):
     response = client.simulate_get(
         '/export', params={
             "actionState": "Export to PTS",
-            "token": "xyz",
+            "token": "fail_me",
             "send_email": "1"})
 
     response_json = response.json

@@ -28,9 +28,8 @@ class Export():
         return export message and response if successful
         """
         try:
-            if req.params['token'] != os.environ.get('EXPORT_TOKEN'):
-                if req.params['token'] != os.environ.get('ACCESS_KEY'):
-                    raise ValueError(ERROR_EXPORT_401)
+            if req.params['token'] != os.environ.get('EXPORT_TOKEN') and req.params['token'] != os.environ.get('ACCESS_KEY'):
+                raise ValueError(ERROR_EXPORT_401)
 
             timezone = pytz.timezone('America/Los_Angeles')
 
