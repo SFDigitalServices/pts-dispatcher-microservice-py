@@ -128,4 +128,3 @@ def test_export_exception_email(client, mock_env):
 
         response_json = response.json
         assert response_json['status'] == 'error'
-

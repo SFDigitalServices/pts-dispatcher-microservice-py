@@ -5,14 +5,11 @@ import datetime
 import base64
 import logging
 import re
-import requests
 import pytz
 import falcon
 import jsend
 import sendgrid
 import sentry_sdk
-from slack import WebClient
-from slack.errors import SlackApiError
 from ..modules.permit_applications import PermitApplication
 from ..transforms.export_submissions import ExportSubmissionsTransform
 
