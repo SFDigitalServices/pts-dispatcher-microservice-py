@@ -134,7 +134,7 @@ class Export():
             files=files,
             headers=headers,
             params=params)
-        print(result)
+        return result
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """

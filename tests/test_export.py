@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from falcon import testing
 from service.transforms.transform import TransformBase
+from service.resources.export import Export
 import service.microservice
 
 CLIENT_HEADERS = {
@@ -189,3 +190,13 @@ def test_export_exception_sftp(client, mock_env):
 
         response_json = response.json
         assert response_json['status'] == 'error'
+
+def test_sftp():
+    """ test sftp, not a full test,
+    just to make sure the function call works
+    """
+    response = Export().sftp('some test data', 'testfile')
+
+    assert response.status_code == 200
+    response_json = response.json
+    assert response_json["status"] == 'success'
