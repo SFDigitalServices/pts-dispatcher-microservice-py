@@ -67,7 +67,7 @@ def test_export(client, mock_env):
 
             assert 'data' in response_json
             assert 'responses' in response_json['data']
-        with patch('service.resources.export.Export.send_email') as mock_send_email:
+        with patch('service.resources.export.Export.sftp') as mock_send_email:
             mock_send_email.return_value.status_code = 200
             mock_send_email.return_value.body = "Data"
 
