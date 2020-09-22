@@ -140,23 +140,18 @@ def test_export_exception_email(client, mock_env):
         response_json = response.json
         assert response_json['status'] == 'error'
 
-def test_transform_base():
-    """ Test TransformBase transform method """
-    data = "test"
-    assert TransformBase().transform(data) == data
-
-def test_send_to_slack():
+def test_export_send_to_slack():
     """ test sending to Slack """
     with patch('service.resources.export.Export.send_to_slack') as mock_send_to_slack:
         mock_send_to_slack.return_value.ok = True
         mock_send_to_slack.return_value.message = {'message': 'test'}
 
-        response = Export().send_to_slack("test", None, '#testchannel')
+        response = Export().send_to_slack("test", None, None)
 
         assert response.ok
-        assert response.message is not None
+        assert response.message['message'] == 'test'
 
-def test_exception_send_to_slack():
+def test_export_exception_send_to_slack():
     """ test sending to Slack exception"""
     with patch('service.resources.export.Export.send_to_slack') as mock_send_to_slack:
         mock_send_to_slack.return_value.ok = False
@@ -165,4 +160,9 @@ def test_exception_send_to_slack():
         response = Export().send_to_slack("test", 'test_api_token', '#testchannel')
         print(response.ok)
         assert not response.ok
-        assert response.message is not None
+        assert response.message['message'] == 'failed'
+
+def test_transform_base():
+    """ Test TransformBase transform method """
+    data = "test"
+    assert TransformBase().transform(data) == data
