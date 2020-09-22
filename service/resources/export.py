@@ -51,7 +51,6 @@ class Export():
             with sentry_sdk.configure_scope() as scope:
                 scope.set_extra('formio_query', formio_query)
 
-            #responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
             responses = PermitApplication.get_applications_by_query(formio_query)
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
@@ -69,9 +68,6 @@ class Export():
 
             file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
             file_name += "-"+str(start_datetime_obj.date())+".csv"
-
-            if len(responses) > 0 and sftp_upload:
-                self.sftp(submissions_csv, file_name)
 
             if len(responses) > 0 and send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
@@ -97,34 +93,6 @@ class Export():
                 msg_error = "{0}".format(exception)
 
             resp.body = json.dumps(jsend.error(msg_error))
-
-    def sftp(self, data, file_name):
-        """ uploads data to sftp folder """
-        files = {'file': (file_name, data, 'text/plain', {'Expires': '0'})}
-
-        headers = {
-            'ACCESS_KEY': os.environ.get('SFDS_SFTP_ACCESS_KEY'),
-            'X-SFTP-HOST': os.environ.get('SFTP_HOSTNAME'),
-            'X-SFTP-HOST-KEY': os.environ.get('SFTP_HOST_KEY'),
-            'X-SFTP-USER': os.environ.get('SFTP_USERNAME'),
-            'X-SFTP-PASSWORD': os.environ.get('SFTP_PASSWORD'),
-            'X-SFDS-APIKEY': os.environ.get('X-SFDS-APIKEY'),
-            'Content-Type': 'text/plain'
-        }
-
-        params = {
-            'remotepath': '', # user home folder
-            'filename': file_name
-        }
-
-        result = requests.post(
-            os.environ.get('SFTP_ENDPOINT'),
-            files=files,
-            headers=headers,
-            params=params)
-
-        slack_msg = "Status: " + str(result.status_code) + ", message: " + json.dumps(result.json())
-        self.send_to_slack("<@henry> PTS dispatcher file export: " + slack_msg)
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
@@ -181,19 +149,3 @@ class Export():
         """
         sg_api = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
         return sg_api.client.mail.send.post(request_body=data)
-
-    @staticmethod
-    def send_to_slack(message):
-        """ send Slack a notifiction """
-        client = WebClient(token=os.environ['SLACK_API_TOKEN'])
-
-        try:
-            client.chat_postMessage(
-                channel='#microservice_daily_notifications', # move #channel to post data
-                text=message)
-        except SlackApiError as err:
-            # You will get a SlackApiError if "ok" is False
-            assert err.response["ok"] is False
-            assert err.response["error"]  # str like 'invalid_auth', 'channel_not_found'
-            error = ("{0}".format(err.response['error']))
-            print(f"Got an error: {error}")
