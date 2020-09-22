@@ -28,9 +28,8 @@ class Export():
         return export message and response if successful
         """
         try:
-            if req.params['token'] != os.environ.get('EXPORT_TOKEN'):
-                if req.params['token'] != os.environ.get('ACCESS_KEY'):
-                    raise ValueError(ERROR_EXPORT_401)
+            if req.params['token'] != os.environ.get('EXPORT_TOKEN') and req.params['token'] != os.environ.get('ACCESS_KEY'):
+                raise ValueError(ERROR_EXPORT_401)
 
             timezone = pytz.timezone('America/Los_Angeles')
 
@@ -122,9 +121,7 @@ class Export():
             files=files,
             headers=headers,
             params=params)
-
-        slack_msg = "Status: " + str(result.status_code) + ", message: " + json.dumps(result.json())
-        self.send_to_slack("<@henry> PTS dispatcher file export: " + slack_msg)
+        print(result)
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
@@ -181,19 +178,3 @@ class Export():
         """
         sg_api = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
         return sg_api.client.mail.send.post(request_body=data)
-
-    @staticmethod
-    def send_to_slack(message):
-        """ send Slack a notifiction """
-        client = WebClient(token=os.environ['SLACK_API_TOKEN'])
-
-        try:
-            client.chat_postMessage(
-                channel='#microservice_daily_notifications', # move #channel to post data
-                text=message)
-        except SlackApiError as err:
-            # You will get a SlackApiError if "ok" is False
-            assert err.response["ok"] is False
-            assert err.response["error"]  # str like 'invalid_auth', 'channel_not_found'
-            error = ("{0}".format(err.response['error']))
-            print(f"Got an error: {error}")
