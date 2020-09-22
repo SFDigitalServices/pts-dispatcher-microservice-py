@@ -102,7 +102,7 @@ def test_export_exception_access(client, mock_env):
 
     response_json = response.json
     assert response_json['status'] == 'error'
-    assert response_json['message'] == 'Bad Request'
+    assert response_json['message'] == 'Unauthorized'
 
 def test_export_exception_email(client, mock_env):
     # pylint: disable=unused-argument
