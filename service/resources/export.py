@@ -5,6 +5,7 @@ import os
 import base64
 import logging
 import re
+import requests
 import pytz
 import falcon
 import jsend
@@ -57,9 +58,9 @@ class Export():
                 subject_name = req.params['name'] + ' ' + subject_name
 
             formio_query = {
-                'created__gte':start_time_utc.isoformat(),
-                'created__lt':end_time_utc.isoformat(),
-                'limit':2000*report_days
+                'created__gte': start_time_utc.isoformat(),
+                'created__lt': end_time_utc.isoformat(),
+                'limit': 2000*report_days
             }
 
             with sentry_sdk.configure_scope() as scope:
@@ -73,6 +74,9 @@ class Export():
             msg += str(len(responses)) + " Submissions"
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
+            sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
+            if sftp_upload:
+                submissions_csv = ExportSubmissionsTransform().transform(responses)
             if send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
 
@@ -105,6 +109,32 @@ class Export():
 
             resp.body = json.dumps(jsend.error(msg_error))
 
+    #pylint: disable=no-self-use,too-many-locals
+    def sftp(self, data, file_name):
+        """ uploads data to sftp folder """
+        files = {'file': (file_name, data, 'text/plain', {'Expires': '0'})}
+
+        headers = {
+            'ACCESS_KEY': os.environ.get('SFDS_SFTP_ACCESS_KEY'),
+            'X-SFTP-HOST': os.environ.get('SFTP_HOSTNAME'),
+            'X-SFTP-HOST-KEY': os.environ.get('SFTP_HOST_KEY'),
+            'X-SFTP-USER': os.environ.get('SFTP_USERNAME'),
+            'X-SFTP-PASSWORD': os.environ.get('SFTP_PASSWORD'),
+            'X-SFDS-APIKEY': os.environ.get('X-SFDS-APIKEY'),
+            'Content-Type': 'text/plain'
+        }
+
+        params = {
+            'remotepath': '', # user home folder
+            'filename': file_name
+        }
+
+        result = requests.post(
+            os.environ.get('SFTP_ENDPOINT'),
+            files=files,
+            headers=headers,
+            params=params)
+        print(result)
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
         #pylint: disable=too-many-locals
