@@ -128,7 +128,7 @@ def test_export_exception_email(client, mock_env):
         response_json = response.json
         assert response_json['status'] == 'error'
 
-def test_export_sftp(client, mock_env):
+def test_export_exception_sftp(client, mock_env):
     # pylint: disable=unused-argument
     # mock_env is a fixture and creates a false positive for pylint
     """Test export sftp exception """
@@ -148,7 +148,7 @@ def test_export_sftp(client, mock_env):
                 "token": "xyz",
                 "sftp_upload": "1"})
 
-        assert response.status_code == 200
+        assert response.status_code == 500
 
         response_json = response.json
         assert response_json['status'] == 'success'
