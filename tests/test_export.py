@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from falcon import testing
 from service.transforms.transform import TransformBase
+from service.resources.export import Export
 import service.microservice
 
 CLIENT_HEADERS = {
@@ -143,3 +144,25 @@ def test_transform_base():
     """ Test TransformBase transform method """
     data = "test"
     assert TransformBase().transform(data) == data
+
+def test_send_to_slack():
+    """ test sending to Slack """
+    with patch('service.resources.export.Export.send_to_slack') as mock_send_to_slack:
+        mock_send_to_slack.return_value.ok = True
+        mock_send_to_slack.return_value.message = {'message': 'test'}
+
+        response = Export().send_to_slack("test", None, '#testchannel')
+
+        assert response.ok
+        assert response.message is not None
+
+def test_exception_send_to_slack():
+    """ test sending to Slack exception"""
+    with patch('service.resources.export.Export.send_to_slack') as mock_send_to_slack:
+        mock_send_to_slack.return_value.ok = False
+        mock_send_to_slack.return_value.message = {'message': 'failed'}
+
+        response = Export().send_to_slack("test", 'test_api_token', '#testchannel')
+        print(response.ok)
+        assert not response.ok
+        assert response.message is not None
