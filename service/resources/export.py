@@ -10,6 +10,8 @@ import falcon
 import jsend
 import sendgrid
 import sentry_sdk
+from slack import WebClient
+from slack.errors import SlackApiError
 from ..modules.formio import Formio
 from ..transforms.export_submissions import ExportSubmissionsTransform
 
@@ -160,3 +162,21 @@ class Export():
         """
         sg_api = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
         return sg_api.client.mail.send.post(request_body=data)
+
+    @staticmethod
+    def send_to_slack(message, client, channel):
+        """ send Slack a notifiction """
+        if client is None:
+            client = WebClient(token=os.environ['SLACK_API_TOKEN'])
+        if channel is None:
+            channel = os.environ['SLACK_CHANNEL']
+        try:
+            client.chat_postMessage(
+                channel=channel, # move #channel to post data
+                text=message)
+
+        except SlackApiError as err:
+            # You will get a SlackApiError if "ok" is False
+            assert err.response["ok"] is False
+            assert err.response["error"]  # str like 'invalid_auth', 'channel_not_found'
+            print(err.response)
