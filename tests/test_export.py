@@ -175,7 +175,7 @@ def test_export_exception_sftp(client, mock_env):
             '/export', params={
                 "actionState": "Export to PTS",
                 "token": "xyz",
-                "sftp_upload": "1"})
+                "send_email": "1"})
 
         assert response.status_code == 500
 
@@ -183,7 +183,7 @@ def test_export_exception_sftp(client, mock_env):
         assert response_json['status'] == 'error'
 
 def test_sftp():
-    """ test sftp, not a full test,
+    """ test sftp, not a full test, full test would need to mock a FTP server
     just to make sure the function call works
     """
     response = Export().sftp('some test data', 'testfile')
