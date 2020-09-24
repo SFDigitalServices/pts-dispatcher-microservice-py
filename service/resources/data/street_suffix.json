@@ -1,0 +1,21 @@
+{
+    "Avenue": "AV",
+    "Boulevard": "BL",
+    "Court": "CT",
+    "Drive": "DR",
+    "Place": "PL",
+    "Plaza": "PZ",
+    "Road": "RD",
+    "Row": "RW",
+    "Square": "SQ",
+    "Street": "ST",
+    "Way": "WY",
+    "Alley": "AL",
+    "Terrace": "TR",
+    "Park": "PK",
+    "Loop": "LP",
+    "Circle": "CR",
+    "Hill": "HL",
+    "Lane": "LN",
+    "Highway": "HY"
+}
