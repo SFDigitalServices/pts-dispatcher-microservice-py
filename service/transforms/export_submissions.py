@@ -14,7 +14,7 @@ class ExportSubmissionsTransform(TransformBase):
         output = list(map(self.get_data, data))
         output = list(map(self.pretty_format, output))
         output = self.normalize(output)
-        output = self.to_csv(output)
+        output = self.to_csv(output, sep)
         return output
 
     @staticmethod
@@ -69,11 +69,11 @@ class ExportSubmissionsTransform(TransformBase):
         return dataframe
 
     @staticmethod
-    def to_csv(dataframe):
+    def to_csv(dataframe, sep=','):
         """
         Return CSV from DataFrame
         """
-        return dataframe.to_csv(index=False)
+        return dataframe.to_csv(index=False, sep=sep, line_terminator='\r\n')
 
     def pretty_format(self, data):
         """ Pretty format data fields """
