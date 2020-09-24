@@ -76,27 +76,28 @@ class Export():
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
             submissions_csv = None
+            sep = ','
             if len(responses) > 0:
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
 
-            if send_email:
-                subject = subject_name+" "+str(start_datetime_obj.date())
+                if send_email:
+                    subject = subject_name+" "+str(start_datetime_obj.date())
 
-                file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
-                file_name += "-"+str(start_datetime_obj.date())+".csv"
+                    file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
+                    file_name += "-"+str(start_datetime_obj.date())+".csv"
 
-                self.email(
-                    subject,
-                    content=msg,
-                    file_name=file_name,
-                    file_content=submissions_csv)
+                    self.email(
+                        subject,
+                        content=msg,
+                        file_name=file_name,
+                        file_content=submissions_csv)
 
-            resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
-            resp.status = falcon.HTTP_200
+                resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
+                resp.status = falcon.HTTP_200
 
-            sentry_sdk.capture_message('PTS Dispatch Export', 'info')
+                sentry_sdk.capture_message('PTS Dispatch Export', 'info')
 
         #pylint: disable=broad-except
         except Exception as exception:
