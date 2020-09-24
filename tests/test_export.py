@@ -189,4 +189,3 @@ def test_sftp():
     response = Export().sftp('some test data', 'testfile')
 
     assert response.status_code == 401
-
