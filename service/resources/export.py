@@ -76,8 +76,10 @@ class Export():
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
             submissions_csv = None
-            if sftp_upload:
-                submissions_csv = ExportSubmissionsTransform().transform(responses)
+            sep = ','
+            if len(responses) > 0 and sftp_upload:
+                sep = '|'
+                submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
             if send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
 

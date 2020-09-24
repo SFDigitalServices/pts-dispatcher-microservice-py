@@ -5,7 +5,8 @@ import re
 class TransformBase():
     """ Base module for Transforms """
 
-    def transform(self, data):
+    #pylint: disable=unused-argument
+    def transform(self, data, sep):
         """
         abstract transform function
         given input, does some transformation and return output

@@ -7,7 +7,7 @@ from .transform import TransformBase
 
 class ExportSubmissionsTransform(TransformBase):
     """ Transform for Export Submissions """
-    def transform(self, data):
+    def transform(self, data, sep):
         """
         transform submissions from export
         """
