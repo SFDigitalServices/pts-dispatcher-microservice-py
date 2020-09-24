@@ -1,7 +1,7 @@
 """Welcome export module"""
+import os
 import json
 import datetime
-import os
 import base64
 import logging
 import re
@@ -11,7 +11,7 @@ import falcon
 import jsend
 import sendgrid
 import sentry_sdk
-from ..modules.formio import Formio
+from ..modules.permit_applications import PermitApplication
 from ..transforms.export_submissions import ExportSubmissionsTransform
 
 ERROR_EXPORT_GENERIC = "Bad Request"
@@ -26,9 +26,8 @@ class Export():
         return export message and response if successful
         """
         try:
-            if req.params['token'] != os.environ.get('EXPORT_TOKEN'):
-                if req.params['token'] != os.environ.get('ACCESS_KEY'):
-                    raise ValueError(ERROR_EXPORT_401)
+            if req.params['token'] != os.environ.get('EXPORT_TOKEN') and req.params['token'] != os.environ.get('ACCESS_KEY'):
+                raise ValueError(ERROR_EXPORT_401)
 
             timezone = pytz.timezone('America/Los_Angeles')
 
@@ -36,21 +35,6 @@ class Export():
             start_datetime_obj = datetime.datetime.combine(
                 yesterday, datetime.datetime.min.time())
 
-            # if start_date provided
-            if 'start_date' in req.params:
-                start_datetime_obj = datetime.datetime.strptime(
-                    req.params['start_date'], '%Y-%m-%d')
-
-            start_time_utc = timezone.localize(start_datetime_obj).astimezone(pytz.UTC)
-
-            # how many days we want included in report starting from start_date
-            report_days = int(req.params['days']) if 'days' in req.params else 1
-
-            end_datetime_obj = start_datetime_obj + datetime.timedelta(days=report_days)
-            end_time_utc = timezone.localize(end_datetime_obj).astimezone(pytz.UTC)
-
-            # form id
-            form_id = req.params['form_id']
 
             # subject name
             subject_name = "Export"
@@ -64,13 +48,21 @@ class Export():
             }
 
             with sentry_sdk.configure_scope() as scope:
-                scope.set_extra('formio_id', form_id)
                 scope.set_extra('formio_query', formio_query)
 
-            responses = Formio.get_formio_submission_by_query(formio_query, form_id=form_id)
+            responses = PermitApplication.get_applications_by_query(formio_query)
+
+            send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
+            sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
+            submissions_csv = None
+            sep = ','
+            if len(responses) > 0:
+                if sftp_upload:
+                    sep = '|'
+                submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
 
             msg = subject_name
-            msg += " "+str(start_time_utc.isoformat())+' to '+str(end_time_utc.isoformat()) + ". "
+            msg += " with export to PTS status, "
             msg += str(len(responses)) + " Submissions"
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False

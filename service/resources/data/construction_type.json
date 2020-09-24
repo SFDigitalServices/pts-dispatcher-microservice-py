@@ -1,0 +1,11 @@
+{
+    "iAFireResistiveNonCombustible": "1",
+    "iBFireResistiveNonCombustible": "2",
+    "iiAProtectedNonCombustible": "3",
+    "iiBUnprotectedNonCombustible": "4",
+    "iiiAProtectedCombustible": "5",
+    "iiiBUnprotectedCombustible": "6",
+    "ivHeavyTimber": "7",
+    "vAProtectedWoodFrame": "8",
+    "vBUnprotectedWoodFrame": "9"
+}

@@ -1,9 +1,9 @@
 """ Export Submissions Transform module """
 #pylint: disable=too-few-public-methods
-import dateutil.parser
-import pytz
 import pandas as pd
 from .transform import TransformBase
+from ..resources.field_configs import FieldConfigs
+from ..resources.field_maps import FieldMaps
 
 class ExportSubmissionsTransform(TransformBase):
     """ Transform for Export Submissions """
@@ -17,13 +17,15 @@ class ExportSubmissionsTransform(TransformBase):
         output = self.to_csv(output, sep)
         return output
 
-    @staticmethod
-    def get_data(submission):
+    # pylint: disable=R0201
+    def get_data(self, submission):
         """
         Get data from submission object
         """
         output = {}
         data = submission['data']
+        output['id'] = submission['_id']
+        output['created'] = submission['created']
 
         #pylint: disable=too-many-nested-blocks
         for key in data:
@@ -43,12 +45,16 @@ class ExportSubmissionsTransform(TransformBase):
 
                         if len(file_names) > 0:
                             output[key] = ', '.join(file_names)
+            # flatten multi select values
+            elif isinstance(data[key], dict):
+                multi_selects = []
+                for multi_key, multi_value in data[key].items():
+                    if multi_value:
+                        multi_selects.append(multi_key)
+                output[key] = ', '.join(multi_selects)
             else:
                 output[key] = data[key]
 
-        # append id and created field to data
-        output['id'] = submission['_id']
-        output['created'] = submission['created']
         return output
 
     def normalize(self, data):
@@ -56,20 +62,12 @@ class ExportSubmissionsTransform(TransformBase):
         Normalize data into a flat structure into DataFrame
         """
         dataframe = pd.json_normalize(data)
-
-        # move id and created to front
-        col = dataframe.pop("created")
-        dataframe.insert(0, col.name, col)
-        col = dataframe.pop("id")
-        dataframe.insert(0, col.name, col)
-
         # update column names
         dataframe.rename(columns=self.pretty_string, inplace=True)
 
         return dataframe
 
-    @staticmethod
-    def to_csv(dataframe, sep=','):
+    def to_csv(self, dataframe, sep=','):
         """
         Return CSV from DataFrame
         """
@@ -79,29 +77,22 @@ class ExportSubmissionsTransform(TransformBase):
         """ Pretty format data fields """
         output = {}
         for key in data:
-            output[key] = self.pretty_time(data[key])
+            if self.datetime_valid(data[key]):
+                output[key] = self.pretty_time(data[key])
+            else:
+                field_key = FieldConfigs.get_field_key(key, 'map')
+                phone_appnum_key = FieldConfigs.get_field_key(key, 'pretty')
+                if field_key is not None:
+                    output[key] = FieldMaps.map_key_value(field_key, data[key])
+                # format phone numbers and building application number
+                elif phone_appnum_key is not None:
+                    if phone_appnum_key == 'phone_fields':
+                        output[key] = self.pretty_phonenumber(data[key])
+                    elif phone_appnum_key == 'appnum_fields':
+                        output[key] = self.pretty_app_num(data[key])
+                # replace \n with \t, \n messes up to_csv()
+                elif isinstance(data[key], (str, bytes)):
+                    output[key] = data[key].replace('\n', '\t')
+                else:
+                    output[key] = data[key]
         return output
-
-    def pretty_time(self, value, zone='America/Los_Angeles'):
-        """
-        If valid date, return a better human readable time string
-        """
-        new_value = value
-        if self.datetime_valid(value):
-            time = dateutil.parser.parse(value)
-            timezone = pytz.timezone(zone)
-            localtime = time.astimezone(timezone).strftime('%Y-%m-%d %I:%M:%S %p')
-            return localtime
-        return new_value
-
-    @staticmethod
-    def datetime_valid(dt_str):
-        """ Check if string is valid datetime """
-        try:
-            time = dateutil.parser.parse(dt_str)
-            time_str = time.isoformat("T", "milliseconds").replace("+00:00", "Z")
-            return time_str == dt_str
-        #pylint: disable=bare-except
-        except:
-            pass
-        return False

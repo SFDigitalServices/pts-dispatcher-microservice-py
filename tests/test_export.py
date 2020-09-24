@@ -13,10 +13,11 @@ CLIENT_HEADERS = {
 }
 CLIENT_ENV = {
     "ACCESS_KEY": CLIENT_HEADERS["ACCESS_KEY"],
-    "FORMIO_API_KEY": "abcdefg",
-    "FORMIO_BASE_URL": "https://localhost",
+    "X_APIKEY": "abcdefg",
+    "API_BASE_URL": "https://localhost",
     "SENDGRID_API_KEY": "abc",
     "EXPORT_TOKEN": "xyz",
+    "SLACK_API_TOKEN": "",
     "EXPORT_EMAIL_FROM": "",
     "EXPORT_EMAIL_TO": "to@localhost",
     "EXPORT_EMAIL_CC": "cc@localhost",
@@ -44,7 +45,7 @@ def test_export(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
@@ -55,11 +56,11 @@ def test_export(client, mock_env):
 
             response = client.simulate_get(
                 '/export', params={
-                    "start_date": "2020-01-01",
-                    "days": "1",
-                    "form_id": "123",
-                    "name": "Test",
+                    "actionState": "Export to PTS",
                     "token": "xyz",
+                    "start_date": "2020-01-01",
+                    "name": "Building Permit Application",
+                    "sftp_upload": "1",
                     "send_email": "1"})
 
             assert response.status_code == 200
@@ -96,16 +97,13 @@ def test_export_exception(client, mock_env):
     # mock_env is a fixture and creates a false positive for pylint
     """Test export exception """
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 500
         mock.side_effect = ValueError('ERROR_TEST')
 
         response = client.simulate_get(
             '/export', params={
-                "start_date": "2020-01-01",
-                "days": "1",
-                "form_id": "123",
-                "name": "Test",
+                "actionState": "Export to PTS",
                 "token": "xyz",
                 "send_email": "1"})
 
@@ -121,17 +119,13 @@ def test_export_exception_access(client, mock_env):
 
     response = client.simulate_get(
         '/export', params={
-            "start_date": "2020-01-01",
-            "days": "1",
-            "form_id": "123",
-            "name": "Test",
-            "token": "abc",
+            "actionState": "Export to PTS",
+            "token": "fail_me",
             "send_email": "1"})
-
-    assert response.status_code == 500
 
     response_json = response.json
     assert response_json['status'] == 'error'
+    assert response_json['message'] == 'Unauthorized'
 
 def test_export_exception_email(client, mock_env):
     # pylint: disable=unused-argument
@@ -143,16 +137,13 @@ def test_export_exception_email(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
         response = client.simulate_get(
             '/export', params={
-                "start_date": "2020-01-01",
-                "days": "1",
-                "form_id": "123",
-                "name": "Test",
+                "actionState": "Export to PTS",
                 "token": "xyz",
                 "send_email": "1"})
 
@@ -198,3 +189,4 @@ def test_sftp():
     response = Export().sftp('some test data', 'testfile')
 
     assert response.status_code == 401
+
