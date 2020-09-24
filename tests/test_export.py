@@ -164,7 +164,7 @@ def test_export_exception_email(client, mock_env):
 def test_transform_base():
     """ Test TransformBase transform method """
     data = "test"
-    assert TransformBase().transform(data) == data
+    assert TransformBase().transform(data, ',') == data
 
 def test_export_exception_sftp(client, mock_env):
     # pylint: disable=unused-argument
