@@ -42,9 +42,7 @@ class Export():
                 subject_name = req.params['name'] + ' ' + subject_name
 
             formio_query = {
-                'created__gte': start_time_utc.isoformat(),
-                'created__lt': end_time_utc.isoformat(),
-                'limit': 2000*report_days
+                'actionState': 'Export to PTS'
             }
 
             with sentry_sdk.configure_scope() as scope:

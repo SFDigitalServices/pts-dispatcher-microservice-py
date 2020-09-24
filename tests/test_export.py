@@ -167,7 +167,7 @@ def test_export_exception_sftp(client, mock_env):
 
     assert mock_responses
 
-    with patch('service.modules.formio.requests.get') as mock:
+    with patch('service.modules.permit_applications.requests.get') as mock:
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
