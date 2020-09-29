@@ -36,7 +36,7 @@ class Export():
 
 
             # subject name
-            subject_name = "Export"
+            subject_name = "PTS_Export"
             if 'name' in req.params:
                 subject_name = req.params['name'] + ' ' + subject_name
 
@@ -71,7 +71,7 @@ class Export():
             msg += str(len(responses)) + " Submissions"
 
             file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
-            file_name += "-"+str(start_datetime_obj.date())+".csv"
+            file_name += "_"+str(start_datetime_obj.date())+".csv"
 
             if len(responses) > 0 and send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
