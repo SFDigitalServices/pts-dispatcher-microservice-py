@@ -61,7 +61,7 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-            
+                
             file2 = open('submission.txt', 'w')
             file2.write(submissions_csv)
             file2.close()
