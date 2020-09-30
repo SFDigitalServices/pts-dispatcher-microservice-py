@@ -5,6 +5,7 @@ import datetime
 import base64
 import logging
 import re
+import requests
 import pytz
 import falcon
 import jsend
@@ -58,26 +59,25 @@ class Export():
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
 
-            msg = subject_name
-            msg += " with export to PTS status, "
-            msg += str(len(responses)) + " Submissions"
+                msg = subject_name
+                msg += " with export to PTS status, "
+                msg += str(len(responses)) + " Submissions"
+                if send_email:
+                    subject = subject_name+" "+str(start_datetime_obj.date())
 
-            file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
-            file_name += "-"+str(start_datetime_obj.date())+".csv"
+                    file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
+                    file_name += "-"+str(start_datetime_obj.date())+".csv"
 
-            if len(responses) > 0 and send_email:
-                subject = subject_name+" "+str(start_datetime_obj.date())
+                    self.email(
+                        subject,
+                        content=msg,
+                        file_name=file_name,
+                        file_content=submissions_csv)
 
-                self.email(
-                    subject,
-                    content=msg,
-                    file_name=file_name,
-                    file_content=submissions_csv)
+                resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
+                resp.status = falcon.HTTP_200
 
-            resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
-            resp.status = falcon.HTTP_200
-
-            sentry_sdk.capture_message('PTS Dispatch Export', 'info')
+                sentry_sdk.capture_message('PTS Dispatch Export', 'info')
 
         #pylint: disable=broad-except
         except Exception as exception:
@@ -89,6 +89,33 @@ class Export():
                 msg_error = "{0}".format(exception)
 
             resp.body = json.dumps(jsend.error(msg_error))
+
+    #pylint: disable=no-self-use,too-many-locals
+    def sftp(self, data, file_name):
+        """ uploads data to sftp folder """
+        files = {'file': (file_name, data, 'text/plain', {'Expires': '0'})}
+
+        headers = {
+            'ACCESS_KEY': os.environ.get('SFDS_SFTP_ACCESS_KEY'),
+            'X-SFTP-HOST': os.environ.get('SFTP_HOSTNAME'),
+            'X-SFTP-HOST-KEY': os.environ.get('SFTP_HOST_KEY'),
+            'X-SFTP-USER': os.environ.get('SFTP_USERNAME'),
+            'X-SFTP-PASSWORD': os.environ.get('SFTP_PASSWORD'),
+            'X-SFDS-APIKEY': os.environ.get('X-SFDS-APIKEY'),
+            'Content-Type': 'text/plain'
+        }
+
+        params = {
+            'remotepath': '', # user home folder
+            'filename': file_name
+        }
+
+        result = requests.post(
+            os.environ.get('SFTP_ENDPOINT'),
+            files=files,
+            headers=headers,
+            params=params)
+        return result
 
     def email(self, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
