@@ -11,7 +11,9 @@ class FieldMaps():
 
     @staticmethod
     def map_key_value(map_type, key):
-        """ maps state to state code """
+        """ converts field values defined in field_configs.py: map_field_configs
+            to MIS accepted values using mapping data in data/*.json
+        """
         ret = None
         with open(FieldMaps.cur_path + '/data/' + FieldMaps.get_map_file(map_type), 'r') as file:
             map_object = json.loads(file.read())
