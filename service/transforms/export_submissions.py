@@ -67,7 +67,6 @@ class ExportSubmissionsTransform(TransformBase):
 
         return dataframe
 
-    # pylint: disable=R0201
     def to_csv(self, dataframe, sep=','):
         """
         Return CSV from DataFrame

@@ -7,6 +7,15 @@ import pytz
 class TransformBase():
     """ Base module for Transforms """
 
+    #pylint: disable=unused-argument
+    def transform(self, data, sep):
+        """
+        abstract transform function
+        given input, does some transformation and return output
+        """
+        output = data
+        return output
+
     @staticmethod
     def pretty_app_num(appnum):
         """ strip dash(-) from the application number  """
