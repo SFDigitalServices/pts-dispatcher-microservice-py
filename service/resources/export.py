@@ -49,10 +49,6 @@ class Export():
 
             responses = PermitApplication.get_applications_by_query(formio_query)
 
-            file1 = open('responses.txt', 'w')
-            file1.write(json.dumps(responses))
-            file1.close()
-
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
             submissions_csv = None
@@ -68,10 +64,6 @@ class Export():
 
             file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
             file_name += "_"+str(start_datetime_obj.date())+".csv"
-
-            file2 = open(file_name, 'w')
-            file2.write(submissions_csv)
-            file2.close()
 
             if len(responses) > 0 and send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())
