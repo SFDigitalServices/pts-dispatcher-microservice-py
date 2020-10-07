@@ -37,7 +37,7 @@ class Export():
 
 
             # subject name
-            subject_name = "Export"
+            subject_name = "PTS_Export"
             if 'name' in req.params:
                 subject_name = req.params['name'] + ' ' + subject_name
 

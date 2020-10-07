@@ -11,13 +11,22 @@ class FieldMaps():
 
     @staticmethod
     def map_key_value(map_type, key):
-        """ maps state to state code """
+        """ converts field values defined in field_configs.py: map_field_configs
+            to MIS accepted values using mapping data in data/*.json
+        """
+        ret = None
         with open(FieldMaps.cur_path + '/data/' + FieldMaps.get_map_file(map_type), 'r') as file:
             map_object = json.loads(file.read())
-
-        if key and key in map_object:
-            return map_object[key]
-        return None
+        # mutli-select values that need to be mapped
+        if key and ',' in key:
+            list_values = key.split(',')
+            r_values = []
+            for value in list_values:
+                r_values.append(map_object[value.strip()])
+            ret = ','.join(r_values)
+        elif key and key in map_object:
+            ret = map_object[key]
+        return ret
 
     @staticmethod
     def get_map_file(argument):

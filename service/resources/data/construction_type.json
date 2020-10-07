@@ -1,11 +1,11 @@
 {
     "iAFireResistiveNonCombustible": "1",
-    "iBFireResistiveNonCombustible": "2",
-    "iiAProtectedNonCombustible": "3",
-    "iiBUnprotectedNonCombustible": "4",
-    "iiiAProtectedCombustible": "5",
-    "iiiBUnprotectedCombustible": "6",
-    "ivHeavyTimber": "7",
-    "vAProtectedWoodFrame": "8",
-    "vBUnprotectedWoodFrame": "9"
+    "iBFireResistiveNonCombustible": "1",
+    "iiAProtectedNonCombustible": "2",
+    "iiBUnprotectedNonCombustible": "2",
+    "iiiAProtectedCombustible": "3",
+    "iiiBUnprotectedCombustible": "3",
+    "ivHeavyTimber": "4",
+    "vAProtectedWoodFrame": "5",
+    "vBUnprotectedWoodFrame": "5"
 }

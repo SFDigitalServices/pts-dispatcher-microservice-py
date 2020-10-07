@@ -1,5 +1,11 @@
 {
-    "1-HOUR FIRE RATING": "1",
-    "FIRE-RESISTANT": "F",
-    "NO FIRE RATING": "N"
+    "iAFireResistiveNonCombustible": "A",
+    "iBFireResistiveNonCombustible": "B",
+    "iiAProtectedNonCombustible": "A",
+    "iiBUnprotectedNonCombustible": "B",
+    "iiiAProtectedCombustible": "A",
+    "iiiBUnprotectedCombustible": "B",
+    "ivHeavyTimber": "",
+    "vAProtectedWoodFrame": "A",
+    "vBUnprotectedWoodFrame": "B"
 }

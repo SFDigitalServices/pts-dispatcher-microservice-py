@@ -13,6 +13,8 @@
             "isInDevelopmentAgreement": "FALSE",
             "is100AffordableHousing": "True"
         },
+        "existingBuildingConstructionType": ["iAFireResistiveNonCombustible", "iiBUnprotectedNonCombustible"],
+        "typeOfConstruction": ["iAFireResistiveNonCombustible", "iiBUnprotectedNonCombustible"],
         "checklist": [
             "item1",
             "item2"
