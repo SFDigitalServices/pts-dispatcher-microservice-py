@@ -48,7 +48,7 @@ class Export():
                 scope.set_extra('formio_query', formio_query)
 
             responses = PermitApplication.get_applications_by_query(formio_query)
-            
+
             file1 = open('responses.txt', 'w')
             file1.write(json.dumps(responses))
             file1.close()
@@ -61,17 +61,17 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-                
-            file2 = open('submission.txt', 'w')
-            file2.write(submissions_csv)
-            file2.close()
-            
+
             msg = subject_name
             msg += " with export to PTS status, "
             msg += str(len(responses)) + " Submissions"
 
             file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
             file_name += "_"+str(start_datetime_obj.date())+".csv"
+
+            file2 = open(file_name, 'w')
+            file2.write(submissions_csv)
+            file2.close()
 
             if len(responses) > 0 and send_email:
                 subject = subject_name+" "+str(start_datetime_obj.date())

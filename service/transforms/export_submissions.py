@@ -77,6 +77,7 @@ class ExportSubmissionsTransform(TransformBase):
     def pretty_format(self, data):
         """ Pretty format data fields """
         output = {}
+
         for key in data:
             if self.datetime_valid(data[key]):
                 output[key] = self.pretty_time(data[key])
@@ -85,6 +86,9 @@ class ExportSubmissionsTransform(TransformBase):
                 phone_appnum_key = FieldConfigs.get_field_key(key, 'pretty')
                 if field_key is not None:
                     output[key] = FieldMaps.map_key_value(field_key, data[key])
+                     # manually add Fire Rating and proposed Fire Rating
+                    if field_key == 'construction_type' and data[key] != '':
+                        output = self.add_fire_rating(key, data[key], output)
                 # format phone numbers and building application number
                 elif phone_appnum_key is not None:
                     if phone_appnum_key == 'phone_fields':
@@ -96,4 +100,13 @@ class ExportSubmissionsTransform(TransformBase):
                     output[key] = data[key].replace('\n', '\t')
                 else:
                     output[key] = data[key]
+        return output
+
+    def add_fire_rating(self, key, value, output):
+        """ set mapping key for Fire Rating and proposed Fire Rating """
+        if key == 'existingBuildingConstructionType':
+            output['fireRating'] = FieldMaps.map_key_value('fire_rating', value)
+        elif key == 'typeOfConstruction':
+            output['proposedFireRating'] = FieldMaps.map_key_value('fire_rating', value)
+
         return output

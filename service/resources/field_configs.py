@@ -6,8 +6,9 @@ class FieldConfigs():
      """
 
     # will move this to client side in the POST body when we implement do_post()
-    map_field_configs = {'fire_rating': {''}, 'building_use': {''}, 'construction_type': {'existingBuildingConstructionType', 'typeOfConstruction', 'newTypeOfConstruction'}, 'occupancy_code': {'existingBuildingOccupancyClass', 'newOccupancyClass', 'occupancyClass'},
-        'street_suffix_fields': {'projectAddressStreetType'}, 'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}}
+    map_field_configs = {'building_use': {'existingBuildingPresentUse', 'proposedUse', 'newBuildingUse'}, 'construction_type': {'existingBuildingConstructionType', 'typeOfConstruction', 'newTypeOfConstruction'},
+        'occupancy_code': {'existingBuildingOccupancyClass', 'newOccupancyClass', 'occupancyClass'}, 'street_suffix_fields': {'projectAddressStreetType'},
+        'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}}
 
     pretty_field_configs = {
         'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber'},
