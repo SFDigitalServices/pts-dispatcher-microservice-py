@@ -16,6 +16,22 @@ class FieldConfigs():
         'appnum_fields': {'buildingPermitApplicationNumber'},
     }
 
+    pts_fields = ["applicantType", "_id", "applicantFirstName", "applicantLastName", "applicantLastName", "applicantPhoneNumber",
+        "applicantEmail", "applicantAddress1", "applicantAddress2", "applicantCity", "Page2State", "applicantZipCode", "applicantContractorLicenseNumber",
+        "applicantBTRC", "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
+        "agentOrganizationName", "agentEmail", "architectOrganizationName", "architectName", "architectEmail", "architectLicenseNumber", "architectLicenseExpirationDate",
+        "attorneyOrganizationName", "attorneyName", "attorneyEmail", "contractorOrganizationName", "contractorName", "contractorEmail", "contractorLicenseNumber",
+        "contractorBTRC", "engineerOrganizationName", "engineerName", "engineerEmail", "engineerLicenseNumber", "alterOrConstructDriveway", "useStreetSpace",
+        "electricalWork", "plumbingWork", "additionalHeightOrStory", "newCenterLineFrontHeight", "deckOrHorizontalExtension", "changeOfOccupancy", "bluebeamId", 
+        "notes", "Project Address Number", "Project Address Number Suffix", "Project Address St Type", "Project Address Unit Number", "Project Address Block",
+        "Project Address Lot", "Project Address Zip"]
+
+    form_38_fields = ["existingBuildingDwellingUnits", "existingBuildingDwellingUnits", "existingBuildingOccupancyStories", "existingBuildingBasementsAndCellars",
+        "existingBuildingPresentUse", "existingBuildingOccupancyClass", "sitePermitForm38", "estimatedCostOfProject", "projectDescription", "typeOfConstruction",
+        "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUse", "occupancyClass"]
+    form_12_fields = ["newEstimatedCostOfProject", "newProjectDescription", "newTypeOfConstruction", "newBuildingUse", "newOccupancyClass", "newGroundFloorArea",
+        "newBuildingFrontHeight", "newDwellingUnits", "newOccupancyStories", "newBasements", ""]
+
     @staticmethod
     def get_field_key(value, field_type):
         """ get the key from field_config based on value """
