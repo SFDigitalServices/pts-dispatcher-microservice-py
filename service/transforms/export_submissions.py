@@ -103,9 +103,9 @@ class ExportSubmissionsTransform(TransformBase):
 
     def add_fire_rating(self, key, value, output):
         """ set mapping key for Fire Rating and proposed Fire Rating """
-        if key == 'existingBuildingConstructionType':
-            output['fireRating'] = FieldMaps.map_key_value('fire_rating', value)
-        elif key == 'typeOfConstruction':
+        if key == 'typeOfConstruction':
             output['proposedFireRating'] = FieldMaps.map_key_value('fire_rating', value)
+        else:
+            output['fireRating'] = FieldMaps.map_key_value('fire_rating', value)
 
         return output
