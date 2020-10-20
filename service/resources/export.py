@@ -50,6 +50,10 @@ class Export():
 
             responses = PermitApplication.get_applications_by_query(formio_query)
 
+            file1 = open("responses.txt", "w")  # write mode
+            file1.write(str(responses))
+            file1.close()
+
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
             submissions_csv = None
@@ -58,7 +62,9 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-
+                file2 = open("export.csv", "w")  # write mode
+                file2.write(str(submissions_csv))
+                file2.close()
                 msg = subject_name
                 msg += " with export to PTS status, "
                 msg += str(len(responses)) + " Submissions"

@@ -20,6 +20,8 @@ pandas = "*"
 sendgrid = "*"
 toolz = "*"
 slackclient = "*"
+pysftp = "*"
+paramiko = "*"
 
 [requires]
 python_version = "3.7"

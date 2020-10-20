@@ -16,21 +16,22 @@ class FieldConfigs():
         'appnum_fields': {'buildingPermitApplicationNumber'},
     }
 
-    pts_fields = ["applicantType", "_id", "applicantFirstName", "applicantLastName", "applicantLastName", "applicantPhoneNumber",
-        "applicantEmail", "applicantAddress1", "applicantAddress2", "applicantCity", "Page2State", "applicantZipCode", "applicantContractorLicenseNumber",
-        "applicantBTRC", "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
-        "agentOrganizationName", "agentEmail", "architectOrganizationName", "architectName", "architectEmail", "architectLicenseNumber", "architectLicenseExpirationDate",
-        "attorneyOrganizationName", "attorneyName", "attorneyEmail", "contractorOrganizationName", "contractorName", "contractorEmail", "contractorLicenseNumber",
-        "contractorBTRC", "engineerOrganizationName", "engineerName", "engineerEmail", "engineerLicenseNumber", "alterOrConstructDriveway", "useStreetSpace",
-        "electricalWork", "plumbingWork", "additionalHeightOrStory", "newCenterLineFrontHeight", "deckOrHorizontalExtension", "changeOfOccupancy", "bluebeamId", 
-        "notes", "Project Address Number", "Project Address Number Suffix", "Project Address St Type", "Project Address Unit Number", "Project Address Block",
-        "Project Address Lot", "Project Address Zip"]
+    pts_fields = ["permitType", "applicantType", "_id", "applicantFirstName", "applicantLastName", "applicantLastName", "applicantPhoneNumber",
+                  "applicantEmail", "applicantAddress1", "applicantAddress2", "applicantCity", "Page2State", "applicantZipCode", "applicantContractorLicenseNumber",
+                  "applicantBTRC", "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
+                  "agentOrganizationName", "agentEmail", "architectOrganizationName", "architectName", "architectEmail", "architectLicenseNumber", "architectLicenseExpirationDate",
+                  "attorneyOrganizationName", "attorneyName", "attorneyEmail", "contractorOrganizationName", "contractorName", "contractorEmail", "contractorLicenseNumber",
+                  "contractorBTRC", "engineerOrganizationName", "engineerName", "engineerEmail", "engineerLicenseNumber", "alterOrConstructDriveway", "useStreetSpace",
+                  "electricalWork", "plumbingWork", "additionalHeightOrStory", "newCenterLineFrontHeight", "deckOrHorizontalExtension", "changeOfOccupancy", "bluebeamId",
+                  "notes", "projectAddressNumber", "projectAddressNumberSuffix", "projectAddressStreetName", "projectAddressUnitNumber", "projectAddressStreetType",
+                  "projectAddressBlock", "projectAddressLot", "projectAddressZip"]
 
     form_38_fields = ["existingBuildingDwellingUnits", "existingBuildingDwellingUnits", "existingBuildingOccupancyStories", "existingBuildingBasementsAndCellars",
-        "existingBuildingPresentUse", "existingBuildingOccupancyClass", "sitePermitForm38", "estimatedCostOfProject", "projectDescription", "typeOfConstruction",
-        "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUse", "occupancyClass"]
+                      "existingBuildingPresentUse", "existingBuildingOccupancyClass", "sitePermitForm38", "estimatedCostOfProject", "projectDescription", "typeOfConstruction",
+                      "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUse", "occupancyClass"]
+
     form_12_fields = ["newEstimatedCostOfProject", "newProjectDescription", "newTypeOfConstruction", "newBuildingUse", "newOccupancyClass", "newGroundFloorArea",
-        "newBuildingFrontHeight", "newDwellingUnits", "newOccupancyStories", "newBasements", ""]
+                      "newBuildingFrontHeight", "newDwellingUnits", "newOccupancyStories", "newBasements"]
 
     @staticmethod
     def get_field_key(value, field_type):
@@ -46,3 +47,22 @@ class FieldConfigs():
                 return field_key
 
         return None
+
+    @staticmethod
+    def is_pts_fields(field):
+        """ check pts specific fields to be included in the csv export, according to
+            https://docs.google.com/spreadsheets/d/1CkGnw8aYxzPwp_CzEGwsmDhqJOATIB3EGp2gsVJtmjc/edit#gid=937406231
+        """
+        if field and field in FieldConfigs.pts_fields:
+            return True
+        return False
+
+    @staticmethod
+    def set_form38_fields():
+        """ get fields that are specific to form 3/8 """
+        FieldConfigs.pts_fields += FieldConfigs.form_38_fields
+
+    @staticmethod
+    def set_form12_fields():
+        """ get fields that are specific to form 1/2 """
+        FieldConfigs.pts_fields += FieldConfigs.form_12_fields

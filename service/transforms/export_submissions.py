@@ -77,6 +77,8 @@ class ExportSubmissionsTransform(TransformBase):
         """ Pretty format data fields """
         output = {}
 
+        data = self.exclude_non_pts_fields(data)
+
         for key in data:
             if self.datetime_valid(data[key]):
                 output[key] = self.pretty_time(data[key])
@@ -109,3 +111,17 @@ class ExportSubmissionsTransform(TransformBase):
             output['proposedFireRating'] = FieldMaps.map_key_value('fire_rating', value)
 
         return output
+
+    def exclude_non_pts_fields(self, data):
+        """ remove non pts integration fields """
+        # setup fields depending on the application flow
+        if data['permitType'] and data['permitType'] == 'newConstruction':
+            FieldConfigs.set_form12_fields()
+        else:
+            FieldConfigs.set_form38_fields()
+        copy_data = []
+        copy_data.extend(data)
+        for key in copy_data:
+            if not FieldConfigs.is_pts_fields(key):
+                data.pop(key, None)
+        return data
