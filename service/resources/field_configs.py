@@ -12,8 +12,7 @@ class FieldConfigs():
         'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}}
 
     pretty_field_configs = {
-        'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber'},
-        'appnum_fields': {'buildingPermitApplicationNumber'},
+        'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber'}
     }
 
     # new construction fields, map them to proposed
@@ -33,7 +32,7 @@ class FieldConfigs():
         "typeOfConstruction": "proposedTypeOfConstruction"
     }
 
-    pts_fields = ["id", "created", "permitType", "reviewOverTheCounter", "onlyFireDepartmentReview", "applicantType", "applicantFirstName",
+    pts_fields = ["id", "created", "permitType", "reviewOverTheCounter", "onlyFireDepartmentReview", "applicantType", "applicantFirstName", "buildingPermitApplicationNumber",
                   "applicantLastName", "applicantPhoneNumber", "applicantEmail", "applicantAddress1", "applicantAddress2", "applicantCity", "applicantState",
                   "applicantZipCode", "applicantContractorLicenseNumber", "applicantBTRC", "applicantArchitectLicenseNumber", "applicantEngineerLicenseNumber",
                   "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",

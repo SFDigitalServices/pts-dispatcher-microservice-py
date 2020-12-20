@@ -18,7 +18,7 @@ CLIENT_ENV = {
     "SENDGRID_API_KEY": "abc",
     "EXPORT_TOKEN": "xyz",
     "SLACK_API_TOKEN": "",
-    "EXPORT_EMAIL_FROM": "",
+    "EXPORT_EMAIL_FROM": "to@localhost",
     "EXPORT_EMAIL_TO": "to@localhost",
     "EXPORT_EMAIL_CC": "cc@localhost",
     "EXPORT_EMAIL_BCC": "bcc@localhost"
@@ -60,7 +60,6 @@ def test_export(client, mock_env):
                     "token": "xyz",
                     "start_date": "2020-01-01",
                     "name": "Building Permit Application",
-                    "sftp_upload": "1",
                     "send_email": "1"})
 
             assert response.status_code == 200

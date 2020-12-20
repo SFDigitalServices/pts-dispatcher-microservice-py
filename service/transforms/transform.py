@@ -120,9 +120,13 @@ class TransformBase():
             data.pop('sitePermitForm12', None)
             data.pop('sitePermitForm38', None)
 
+            # append Rev # to project description
+            bpa = TransformBase.pretty_app_num(data['buildingPermitApplicationNumber'])
+            data['projectDescription'] = 'Revision to ' + bpa + data['projectDescription']
+            data.pop('buildingPermitApplicationNumber', None)
+
             #convert bool values
             data = TransformBase.convert_bool_fields(data)
-
         return data
 
     @staticmethod

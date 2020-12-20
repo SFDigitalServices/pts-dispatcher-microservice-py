@@ -103,13 +103,9 @@ class ExportSubmissionsTransform(TransformBase):
                     elif phone_appnum_key is not None:
                         if phone_appnum_key == 'phone_fields':
                             output[key] = self.pretty_phonenumber(data[key])
-                        elif phone_appnum_key == 'appnum_fields':
-                            output[key] = self.pretty_app_num(data[key])
                     # cleanse characters that break the csv
                     elif isinstance(data[key], (str, bytes)):
                         output[key] = data[key].replace('\n', '\t').replace('|', '')
-                    else:
-                        output[key] = data[key]
                 # relabel field, if necessary
                 relabel_field = FieldConfigs.get_relabel_fields(key)
                 if relabel_field:

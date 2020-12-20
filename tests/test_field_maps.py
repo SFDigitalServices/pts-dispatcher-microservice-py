@@ -20,7 +20,3 @@ def test_map_key_value_street_suffix(name, expected):
     """ test mapping values to key from map_type """
     assert expected == FieldMaps.map_key_value('street_suffix_fields', name)
 
-@pytest.mark.parametrize('name', ('TEST'))
-def test_map_key_value_none(name):
-    """ test mapping values to key from map_type """
-    assert FieldMaps.map_key_value('street_suffix_fields', name) is None
