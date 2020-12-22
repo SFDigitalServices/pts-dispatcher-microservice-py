@@ -65,8 +65,7 @@ class ExportSubmissionsTransform(TransformBase):
                         output[key] = ', '.join(multi_selects)
                 else:
                     output[key] = data[key]
-            return output
-        return None
+        return output
 
     def normalize(self, data):
         """
