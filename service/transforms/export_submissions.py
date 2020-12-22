@@ -112,3 +112,4 @@ class ExportSubmissionsTransform(TransformBase):
                     output[relabel_field] = output.pop(key)
             output = self.reorder_fields(output)
             return output
+
