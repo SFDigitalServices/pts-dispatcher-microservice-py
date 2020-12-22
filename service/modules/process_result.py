@@ -192,4 +192,3 @@ class ProcessResultFile():
             #clean up tmp file
             os.remove(tracker_file)
         return file_content
-
