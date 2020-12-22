@@ -68,10 +68,9 @@ def test_process_result(client, mock_env):
         __exit__=lambda *args: None
     )
 )
-def test_get_result_file():
+def test_get_result_file(file_name):
     """ Test get result file """
     file_name = ProcessResultFile().get_result_file('tests/mocks/result_file.csv')
-    print(file_name)
     assert file_name != ''
 
 def test_get_result_file_exception():
