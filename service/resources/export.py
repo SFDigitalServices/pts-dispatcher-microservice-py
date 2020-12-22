@@ -127,10 +127,11 @@ class Export():
             files=files,
             headers=headers,
             params=params)
-        if result:
+        #if result:
             #set exported file name for process_result
-            return result
+        return result
 
+    #pylint: disable=too-many-arguments
     def email(self, recipients, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
         #pylint: disable=too-many-locals

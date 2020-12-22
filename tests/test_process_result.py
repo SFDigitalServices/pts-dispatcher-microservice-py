@@ -5,7 +5,6 @@ from unittest.mock import patch
 import unittest.mock as mock
 import pytest
 import pysftp
-import ast
 from falcon import testing
 from service.modules.process_result import ProcessResultFile
 import service.microservice
@@ -69,7 +68,7 @@ def test_process_result(client, mock_env):
         __exit__=lambda *args: None
     )
 )
-def test_get_result_file(mock_connection):
+def test_get_result_file():
     """ Test get result file """
     file_name = ProcessResultFile().get_result_file('tests/mocks/result_file.csv')
     print(file_name)
@@ -96,8 +95,9 @@ def test_get_exported_submissions():
         assert ret
 
 def test_process_file(client, mock_env):
+    # pylint: disable=unused-argument
     """ Test process file """
-    file_name = 'tests/mocks/result_file.csv'
+    #file_name = 'tests/mocks/result_file.csv'
 
     with patch('service.resources.export.Export.send_email') as mock_send_email:
         mock_send_email.return_value.status_code = 202

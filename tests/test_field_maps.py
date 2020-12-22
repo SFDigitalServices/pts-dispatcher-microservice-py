@@ -19,4 +19,3 @@ def test_map_key_value_states(name, expected):
 def test_map_key_value_street_suffix(name, expected):
     """ test mapping values to key from map_type """
     assert expected == FieldMaps.map_key_value('street_suffix_fields', name)
-

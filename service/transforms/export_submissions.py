@@ -24,6 +24,7 @@ class ExportSubmissionsTransform(TransformBase):
         Get data from submission object
         """
         # skip permit type = existingPermitApplication submissions
+        #pylint: disable=too-many-nested-blocks
         if submission['data']['permitType'] and submission['data']['permitType'] != 'existingPermitApplication':
             output = {}
             data = submission['data']
@@ -65,6 +66,7 @@ class ExportSubmissionsTransform(TransformBase):
                 else:
                     output[key] = data[key]
             return output
+        return None
 
     def normalize(self, data):
         """
@@ -111,4 +113,4 @@ class ExportSubmissionsTransform(TransformBase):
                 if relabel_field:
                     output[relabel_field] = output.pop(key)
             output = self.reorder_fields(output)
-            return output
+        return output

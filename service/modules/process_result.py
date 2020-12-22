@@ -1,19 +1,16 @@
 """Process result file module"""
 import os
 import json
-import sys
 import datetime
 import logging
+import ast
 import jsend
 import falcon
 import pytz
 import pysftp
 import sendgrid
 import sentry_sdk
-import ast
 import pandas as pd
-import xlsxwriter
-import base64
 from .permit_applications import PermitApplication
 from ..resources.export import Export
 
@@ -56,6 +53,7 @@ class ProcessResultFile():
 
             resp.body = json.dumps(jsend.error(msg_error))
 
+    #pylint: disable=no-self-use,too-many-locals
     def process_file(self, file_name):
         """ process the result file """
         recipients = ''
@@ -83,7 +81,7 @@ class ProcessResultFile():
             fields = line.split('|')
             #skip header
             if fields[0] == 'FORMIO':
-                continue;
+                continue
             formio_id = fields[0]
             status = fields[1]
             if formio_id in exported_submissions:
@@ -179,6 +177,7 @@ class ProcessResultFile():
         data_frame = pd.DataFrame(tracker)
 
         # Create a Pandas Excel writer using XlsxWriter as the engine.
+        #pylint: disable=abstract-class-instantiated
         writer = pd.ExcelWriter(tracker_file, engine='xlsxwriter')
 
         # Convert the dataframe to an XlsxWriter Excel object.
@@ -194,3 +193,4 @@ class ProcessResultFile():
             #clean up tmp file
             os.remove(tracker_file)
             return file_content
+        return None
