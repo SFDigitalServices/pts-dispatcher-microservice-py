@@ -55,8 +55,7 @@ def test_process_result(client, mock_env):
         response = client.simulate_get(
             '/processResultFile', params={
                 "token": "xyz"})
-        print(response.json)
-        assert response.status_code == 500
+        assert response.status_code == 200
 
 @mock.patch.object(
     target=pysftp,
@@ -127,7 +126,7 @@ def test_process_result_exception(client, mock_env):
             '/processResultFile', params={
                 "token": "xyz"})
 
-        assert response.status_code == 500
+        assert response.status_code == 200
 
         response_json = response.json
         assert response_json['status'] == 'error'
