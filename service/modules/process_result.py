@@ -40,8 +40,6 @@ class ProcessResultFile():
 
                 resp.body = json.dumps(jsend.success({'message': file_name, 'responses':len(file_name)}))
                 resp.status = falcon.HTTP_200
-            else:
-                raise ValueError
         #pylint: disable=broad-except
         except Exception as exception:
             logging.exception('ProcessResultFile.on_get Exception')
@@ -171,6 +169,7 @@ class ProcessResultFile():
 
     def create_tracker_file(self, tracker):
         """ create the tracker spreadsheet """
+        file_content = ''
         # Create a Pandas dataframe from tracker data.
         tracker_file = self.data_file_path + 'tracker_tmp.xlsx'
         # Create a Pandas dataframe from some data.
@@ -192,5 +191,5 @@ class ProcessResultFile():
             file1.close()
             #clean up tmp file
             os.remove(tracker_file)
-            return file_content
-        return None
+        return file_content
+
