@@ -112,7 +112,6 @@ def test_process_file(client, mock_env):
 
             assert response.status_code == 200
 
-
 def test_process_result_exception(client, mock_env):
     # pylint: disable=unused-argument
     # mock_env is a fixture and creates a false positive for pylint
@@ -126,7 +125,7 @@ def test_process_result_exception(client, mock_env):
             '/processResultFile', params={
                 "token": "xyz"})
 
-        assert response.status_code == 200
+        assert response.status_code == 500
 
         response_json = response.json
         assert response_json['status'] == 'error'
