@@ -52,10 +52,19 @@ def test_process_result(client, mock_env):
         mock.return_value.status_code = 200
         mock.return_value.json.return_value = mock_responses
 
-        response = client.simulate_get(
-            '/processResultFile', params={
-                "token": "xyz"})
-        assert response.status_code == 200
+        with patch('service.modules.permit_applications.requests.patch') as mock_patch:
+            mock_patch.return_value.text = "TEST"
+            mock_patch.return_value.status_code = 200
+
+            with patch('service.resources.export.Export.send_email') as mock_send_email:
+                mock_send_email.return_value.status_code = 202
+                mock_send_email.return_value.body = "Content"
+                mock_send_email.return_value.headers = "X-Message-Id: 12345"
+
+                response = client.simulate_get(
+                    '/processResultFile', params={
+                        "token": "xyz"})
+                assert response.status_code == 200
 
 @mock.patch.object(
     target=pysftp,
@@ -123,7 +132,7 @@ def test_process_result_exception(client, mock_env):
 
         response = client.simulate_get(
             '/processResultFile', params={
-                "token": "xyz"})
+                "token": "xyzbb"})
 
         assert response.status_code == 500
 

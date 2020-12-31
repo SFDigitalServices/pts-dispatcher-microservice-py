@@ -82,6 +82,7 @@ class ProcessResultFile():
                 continue
             formio_id = fields[0]
             status = fields[1]
+            street_num = street_name = bb_project_id = sfx = ''
             if formio_id in exported_submissions:
                 tracker['formio id'].append(formio_id)
                 tracker['status'].append(status)
