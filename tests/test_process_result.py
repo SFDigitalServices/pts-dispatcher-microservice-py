@@ -50,11 +50,10 @@ def test_process_result(client, mock_env):
     assert mock_responses
 
     with patch('service.modules.process_result.ProcessResultFile.get_result_file') as mock_result_file:
-        mock_result_file.return_value.get_result_file.return_value = "PTS_Export_09_26.csv"
-        mock_result_file.return_value.status_code = 200
+        mock_result_file.return_value = "PTS_Export_09_26.csv"
 
         with patch('service.modules.process_result.ProcessResultFile.process_file') as mock_process_file:
-            mock_process_file.return_value.process_file.return_value = 'TEST'
+            mock_process_file.return_value = 'TEST'
 
             response = client.simulate_get(
                 '/processResultFile', params={
