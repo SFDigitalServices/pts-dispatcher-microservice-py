@@ -61,10 +61,14 @@ def test_process_result(client, mock_env):
                 mock_send_email.return_value.body = "Content"
                 mock_send_email.return_value.headers = "X-Message-Id: 12345"
 
-                response = client.simulate_get(
-                    '/processResultFile', params={
-                        "token": "xyz"})
-                assert response.status_code == 200
+                with patch('service.modules.process_result.ProcessResultFile.get_result_file') as mock_result_file:
+                    mock_patch.return_value.text = "PTS_Export_09_26.csv"
+                    mock_patch.return_value.status_code = 200
+
+                    response = client.simulate_get(
+                        '/processResultFile', params={
+                            "token": "xyz"})
+                    assert response.status_code == 200
 
 @mock.patch.object(
     target=pysftp,
