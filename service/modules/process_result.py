@@ -150,14 +150,14 @@ class ProcessResultFile():
 
     def get_exported_submissions(self):
         """ get submissions in the current csv export """
-        formio_query = {
+        _query = {
             'actionState': 'Export to PTS'
         }
 
         with sentry_sdk.configure_scope() as scope:
-            scope.set_extra('formio_query', formio_query)
+            scope.set_extra('formio_query', _query)
 
-        responses = PermitApplication.get_applications_by_query(formio_query)
+        responses = PermitApplication.get_applications_by_query(_query)
 
         ret = {}
         # use formio id as the key for the ['data'] object
