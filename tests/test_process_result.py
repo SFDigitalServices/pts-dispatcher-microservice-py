@@ -98,7 +98,10 @@ def test_get_exported_submissions():
 def test_process_file(client, mock_env):
     # pylint: disable=unused-argument
     """ Test process file """
-    #file_name = 'tests/mocks/result_file.csv'
+    with open('tests/mocks/exported_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
+
+    assert mock_responses
 
     with patch('service.resources.export.Export.send_email') as mock_send_email:
         mock_send_email.return_value.status_code = 202
@@ -109,11 +112,12 @@ def test_process_file(client, mock_env):
             mock_patch.return_value.text = "TEST"
             mock_patch.return_value.status_code = 200
 
-            response = client.simulate_get(
-            '/processResultFile', params={
-                "token": "xyz"})
+            with patch('service.modules.process_result.ProcessResultFile.get_exported_submissions') as mock_patch:
+                mock_patch.return_value = mock_responses
 
-            assert response.status_code == 200
+                content = ProcessResultFile().process_file('tests/mocks/result_file.csv')
+
+                assert content != ''
 
 def test_process_result_exception(client, mock_env):
     # pylint: disable=unused-argument

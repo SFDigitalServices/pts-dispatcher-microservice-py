@@ -59,11 +59,11 @@ class ProcessResultFile():
         content = '<table><tr><th>Integration Status</th><th>ErrorD</th><th>Formio ID</th><th>Street #</th><th>Street Name</th><th>SFX</th><th>BB Project ID</th></tr>'
 
         file_handle = open(file_name, 'r')
-        #exported_submissions = self.get_exported_submissions()
-        data_file = open(self.data_file_path + 'exported_submissions.txt', 'r')
-        data_string = data_file.read()
-        exported_submissions = ast.literal_eval(data_string)
-        data_file.close()
+        exported_submissions = self.get_exported_submissions()
+        #data_file = open(self.data_file_path + 'exported_submissions.txt', 'r')
+        #data_string = data_file.read()
+        # exported_submissions = ast.literal_eval(data_string)
+        #data_file.close()
         tracker = {
             'formio id': [],
             'status': [],
