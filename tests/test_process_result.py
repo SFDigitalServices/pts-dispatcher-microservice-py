@@ -48,14 +48,17 @@ def test_process_result(client, mock_env):
         mock_responses = json.load(file_obj)
 
     assert mock_responses
-    with patch('service.modules.permit_applications.requests.get') as mock:
-        mock.return_value.status_code = 200
-        mock.return_value.json.return_value = mock_responses
 
-        response = client.simulate_get(
-            '/processResultFile', params={
-                "token": "xyz"})
-        assert response.status_code == 200
+    with patch('service.modules.process_result.ProcessResultFile.get_result_file') as mock_result_file:
+        mock_result_file.return_value = "PTS_Export_09_26.csv"
+
+        with patch('service.modules.process_result.ProcessResultFile.process_file') as mock_process_file:
+            mock_process_file.return_value = 'TEST'
+
+            response = client.simulate_get(
+                '/processResultFile', params={
+                    "token": "xyz"})
+            assert response.status_code == 200
 
 @mock.patch.object(
     target=pysftp,
@@ -95,7 +98,10 @@ def test_get_exported_submissions():
 def test_process_file(client, mock_env):
     # pylint: disable=unused-argument
     """ Test process file """
-    #file_name = 'tests/mocks/result_file.csv'
+    with open('tests/mocks/exported_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
+
+    assert mock_responses
 
     with patch('service.resources.export.Export.send_email') as mock_send_email:
         mock_send_email.return_value.status_code = 202
@@ -106,11 +112,12 @@ def test_process_file(client, mock_env):
             mock_patch.return_value.text = "TEST"
             mock_patch.return_value.status_code = 200
 
-            response = client.simulate_get(
-            '/processResultFile', params={
-                "token": "xyz"})
+            with patch('service.modules.process_result.ProcessResultFile.get_exported_submissions') as mock_patch:
+                mock_patch.return_value = mock_responses
 
-            assert response.status_code == 200
+                content = ProcessResultFile().process_file('tests/mocks/result_file.csv')
+
+                assert content != ''
 
 def test_process_result_exception(client, mock_env):
     # pylint: disable=unused-argument
@@ -123,7 +130,7 @@ def test_process_result_exception(client, mock_env):
 
         response = client.simulate_get(
             '/processResultFile', params={
-                "token": "xyz"})
+                "token": "xyzbb"})
 
         assert response.status_code == 500
 
