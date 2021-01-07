@@ -1,10 +1,12 @@
 # pylint: disable=redefined-outer-name
 """Tests for export """
+import datetime
 import json
 from unittest.mock import patch
 import unittest.mock as mock
 import pytest
 import pysftp
+import pytz
 from falcon import testing
 from service.modules.process_result import ProcessResultFile
 import service.microservice
@@ -49,8 +51,14 @@ def test_process_result(client, mock_env):
 
     assert mock_responses
 
+    timezone = pytz.timezone('America/Los_Angeles')
+    current_time = datetime.datetime.now(timezone)
+    hours_added = datetime.timedelta(hours=-1) # rewind 1 hour to get the correct uploaded file name
+    file_time = current_time + hours_added
+    file_name = 'DBI_permits_' + str(file_time.year) + str(file_time.month) + str(file_time.day) + str(file_time.hour) + str(file_time.minute) + '_response.csv'
+
     with patch('service.modules.process_result.ProcessResultFile.get_result_file') as mock_result_file:
-        mock_result_file.return_value = "PTS_Export_09_26.csv"
+        mock_result_file.return_value = file_name
 
         with patch('service.modules.process_result.ProcessResultFile.process_file') as mock_process_file:
             mock_process_file.return_value = 'TEST'

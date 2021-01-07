@@ -32,7 +32,11 @@ class ProcessResultFile():
             current_time = datetime.datetime.now(timezone)
             file_name = 'DBI_permits_' + str(current_time.year) + str(current_time.month) + str(current_time.day)
             #DBI_permits_YYYYMMDDHHMI_response.csv  where HH = 24 hour clock Mi  = minutes
-            file_name = 'PTS_Export_09_26.csv'
+            #file_name = 'PTS_Export_09_26.csv'
+            current_time = datetime.datetime.now(timezone)
+            hours_added = datetime.timedelta(hours=-1) # rewind 1 hour to get the correct uploaded file name
+            file_time = current_time + hours_added
+            file_name = 'DBI_permits_' + str(file_time.year) + str(file_time.month) + str(file_time.day) + str(file_time.hour) + str(file_time.minute) + '_response.csv'
             result = self.get_result_file(file_name)
 
             if result == file_name:
