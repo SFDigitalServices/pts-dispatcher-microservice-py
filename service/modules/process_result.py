@@ -3,7 +3,7 @@ import os
 import json
 import datetime
 import logging
-#import ast
+import ast
 import jsend
 import falcon
 import pytz
@@ -79,11 +79,11 @@ class ProcessResultFile():
             'issued_closed_date': [],
         }
 
-        #exported_submissions = self.get_exported_submissions()
-        data_file = open(self.data_file_path + 'exported_submissions.txt', 'r')
-        data_string = data_file.read()
-        exported_submissions = ast.literal_eval(data_string)
-        data_file.close()
+        exported_submissions = self.get_exported_submissions()
+        #data_file = open(self.data_file_path + 'exported_submissions.txt', 'r')
+        #data_string = data_file.read()
+        #exported_submissions = ast.literal_eval(data_string)
+        #data_file.close()
 
         summary_email_content = self.create_email_content(file_name, tracker, exported_submissions)
         # create tracker XLS
@@ -136,9 +136,6 @@ class ProcessResultFile():
         for item in responses:
             ret[item['_id']] = item['data']
             ret[item['_id']]['date_created'] = item['created']
-        #file1 = open("exported_submissions.txt", "w")  # write mode
-        #file1.write(str(ret))
-        #file1.close()
         return ret
 
     def create_tracker_file(self, tracker):
@@ -218,8 +215,8 @@ class ProcessResultFile():
                 tracker['ppc_release_date'].append('')
                 tracker['issued_closed_date'].append('')
             # if successfully loaded into PTS, update submission status
-            #if status == 'Success':
-                #PermitApplication.update_status(formio_id)
+            if status == 'Success':
+                PermitApplication.update_status(formio_id)
                 # send email to applicants with success email template?
 
             content += '<tr>'
@@ -254,11 +251,12 @@ class ProcessResultFile():
             uploads = exported_submission.get('requiredUploads', None)
 
         _uploads = ''
-        for upload in uploads:
-            href = ''
-            if 'url' in upload and 'originalName' in upload:
-                href = upload['url'].replace(aws_file_url, ds_file_url)
-                _uploads += '<li><a href="' + href + '"</a>' + upload['originalName'] + '</li>'
+        if uploads:
+            for upload in uploads:
+                href = ''
+                if 'url' in upload and 'originalName' in upload:
+                    href = upload['url'].replace(aws_file_url, ds_file_url)
+                    _uploads += '<li><a href="' + href + '"</a>' + upload['originalName'] + '</li>'
 
         confirm_uploads = ''
         if 'confirmationUploads' in exported_submission:
