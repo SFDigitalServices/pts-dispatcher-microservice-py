@@ -1,4 +1,5 @@
 {
+    "AVE": "AV",
     "Avenue": "AV",
     "Boulevard": "BL",
     "Court": "CT",
@@ -17,5 +18,23 @@
     "Circle": "CR",
     "Hill": "HL",
     "Lane": "LN",
-    "Highway": "HY"
+    "Highway": "HY",
+    "ST": "ST",
+    "CT": "CT",
+    "HY": "HY",
+    "LN": "LN",
+    "HL": "HL",
+    "CR": "CR",
+    "LP": "LP",
+    "PK": "PK",
+    "TR": "TR",
+    "AL": "AL",
+    "WY": "WY",
+    "SQ": "SQ",
+    "RW": "RW",
+    "RD": "RD",
+    "PZ": "PZ",
+    "PL": "PL",
+    "DR": "DR",
+    "BL": "BL"
 }

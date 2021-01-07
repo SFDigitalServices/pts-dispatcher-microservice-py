@@ -1,0 +1,159 @@
+# pylint: disable=redefined-outer-name
+"""Tests for export """
+import datetime
+import json
+from unittest.mock import patch
+import unittest.mock as mock
+import pytest
+import pysftp
+import pytz
+from falcon import testing
+from service.modules.process_result import ProcessResultFile
+import service.microservice
+
+CLIENT_HEADERS = {
+    "ACCESS_KEY": "1234567"
+}
+CLIENT_ENV = {
+    "ACCESS_KEY": CLIENT_HEADERS["ACCESS_KEY"],
+    "X_APIKEY": "abcdefg",
+    "API_BASE_URL": "https://localhost",
+    "SENDGRID_API_KEY": "abc",
+    "EXPORT_TOKEN": "xyz",
+    "SLACK_API_TOKEN": "",
+    "EXPORT_EMAIL_FROM": "",
+    "EXPORT_EMAIL_TO": "to@localhost",
+    "EXPORT_EMAIL_CC": "cc@localhost",
+    "EXPORT_EMAIL_BCC": "bcc@localhost",
+    "SUMMARY_EMAIL_TO": "to@localhost",
+    "SUMMARY_EMAIL_CC": "cc@localhost",
+    "SUMMARY_EMAIL_BCC": "bcc@localhost"
+}
+
+@pytest.fixture()
+def client():
+    """ client fixture """
+    return testing.TestClient(app=service.microservice.start_service())
+
+@pytest.fixture
+def mock_env(monkeypatch):
+    """ mock environment access key """
+    for key in CLIENT_ENV:
+        monkeypatch.setenv(key, CLIENT_ENV[key])
+
+def test_process_result(client, mock_env):
+    # pylint: disable=unused-argument
+    # mock_env is a fixture and creates a false positive for pylint
+    """Test export message response"""
+
+    with open('tests/mocks/export_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
+
+    assert mock_responses
+
+    timezone = pytz.timezone('America/Los_Angeles')
+    current_time = datetime.datetime.now(timezone)
+    hours_added = datetime.timedelta(hours=-1) # rewind 1 hour to get the correct uploaded file name
+    file_time = current_time + hours_added
+    file_name = 'DBI_permits_' + str(file_time.year) + str(file_time.month) + str(file_time.day) + str(file_time.hour) + str(file_time.minute) + '_response.csv'
+
+    with patch('service.modules.process_result.ProcessResultFile.get_result_file') as mock_result_file:
+        mock_result_file.return_value = file_name
+
+        with patch('service.modules.process_result.ProcessResultFile.process_file') as mock_process_file:
+            mock_process_file.return_value = 'TEST'
+
+            response = client.simulate_get(
+                '/processResultFile', params={
+                    "token": "xyz"})
+            assert response.status_code == 200
+
+@mock.patch.object(
+    target=pysftp,
+    attribute='Connection',
+    autospec=True,
+    return_value=mock.Mock(
+        spec=pysftp.Connection,
+        __enter__=lambda self: self,
+        __exit__=lambda *args: None
+    )
+)
+def test_get_result_file(file_name):
+    """ Test get result file """
+    file_name = ProcessResultFile().get_result_file('tests/mocks/result_file.csv')
+    assert file_name != ''
+
+def test_get_result_file_exception():
+    """ Test get result file """
+    file_name = ProcessResultFile().get_result_file('tests/mocks/dummy.csv')
+    assert file_name == ''
+
+def test_get_exported_submissions():
+    """ test get exported submissions """
+    with open('tests/mocks/export_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
+
+    assert mock_responses
+
+    with patch('service.modules.permit_applications.requests.get') as mock:
+        mock.return_value.status_code = 200
+        mock.return_value.json.return_value = mock_responses
+
+        ret = ProcessResultFile().get_exported_submissions()
+
+        assert ret
+
+def test_process_file(client, mock_env):
+    # pylint: disable=unused-argument
+    """ Test process file """
+    with open('tests/mocks/exported_submissions.json', 'r') as file_obj:
+        mock_responses = json.load(file_obj)
+
+    assert mock_responses
+
+    with patch('service.resources.export.Export.send_email') as mock_send_email:
+        mock_send_email.return_value.status_code = 202
+        mock_send_email.return_value.body = "Content"
+        mock_send_email.return_value.headers = "X-Message-Id: 12345"
+
+        with patch('service.modules.permit_applications.requests.patch') as mock_patch:
+            mock_patch.return_value.text = "TEST"
+            mock_patch.return_value.status_code = 200
+
+            with patch('service.modules.process_result.ProcessResultFile.get_exported_submissions') as mock_patch:
+                mock_patch.return_value = mock_responses
+
+                content = ProcessResultFile().process_file('tests/mocks/result_file.csv')
+
+                assert content != ''
+
+def test_process_result_exception(client, mock_env):
+    # pylint: disable=unused-argument
+    # mock_env is a fixture and creates a false positive for pylint
+    """Test export exception """
+
+    with patch('service.modules.permit_applications.requests.get') as mock:
+        mock.return_value.status_code = 500
+        mock.side_effect = ValueError('ERROR_TEST')
+
+        response = client.simulate_get(
+            '/processResultFile', params={
+                "token": "xyzbb"})
+
+        assert response.status_code == 500
+
+        response_json = response.json
+        assert response_json['status'] == 'error'
+
+def test_process_result_exception_access(client, mock_env):
+    # pylint: disable=unused-argument
+    # mock_env is a fixture and creates a false positive for pylint
+    """Test export exception access """
+
+    response = client.simulate_get(
+        '/processResultFile', params={
+            "token": "fail_me"})
+
+    response_json = response.json
+    assert response_json['status'] == 'error'
+    assert response_json['message'] == 'Unauthorized'

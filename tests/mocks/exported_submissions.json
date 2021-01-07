@@ -1,8 +1,5 @@
-[
-    {
-    "_id": "5fc928b7baf5b8a6be026c5b",
-    "state": "submitted",
-    "data": {
+{
+    "5fb706db031847d89394838d": {
         "actionState":"Export to PTS",
         "bluebeamStatus":"",
         "ptsStatus":"",
@@ -218,13 +215,7 @@
         "ownerFirstName":"test",
         "ownerLastName":"test"
      },
-    "created": "2020-01-01T01:01:01.001Z",
-    "modified": "2020-01-01T01:01:01.001Z"
-    },
-    {
-      "_id": "5fc928b7baf5b8a6be026c5b",
-      "state": "submitted",
-      "data": {
+    "5fb849a3a31d3e2f91e8b981": {
           "actionState":"Export to PTS",
           "bluebeamStatus":"",
           "ptsStatus":"",
@@ -438,14 +429,8 @@
           "ownerOrganizationName":"",
           "ownerFirstName":"test",
           "ownerLastName":"test"
-       },
-       "created": "2020-01-01T01:01:01.001Z",
-       "modified": "2020-01-01T01:01:01.001Z"
-      },
-      {
-         "_id": "5fc928b7baf5b8a6be026c5b",
-         "state": "submitted",
-         "data": {
+    },
+    "5fb84e1634edf81adbce5fd7": {
              "actionState":"Export to PTS",
              "bluebeamStatus":"",
              "ptsStatus":"",
@@ -659,8 +644,5 @@
              "ownerOrganizationName":"",
              "ownerFirstName":"test",
              "ownerLastName":"test"
-          },
-          "created": "2020-01-01T01:01:01.001Z",
-          "modified": "2020-01-01T01:01:01.001Z"
-         }
-]
+    }
+}

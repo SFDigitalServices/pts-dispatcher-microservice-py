@@ -35,7 +35,6 @@ class Export():
             start_datetime_obj = datetime.datetime.combine(
                 yesterday, datetime.datetime.min.time())
 
-
             # subject name
             subject_name = "PTS_Export"
             if 'name' in req.params:
@@ -58,7 +57,13 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
-
+                #DBI_permits_YYYYMMDDHHMI.csv  where HH = 24 hour clock Mi  = minutes
+                current_time = datetime.datetime.now(timezone)
+                file_name = 'DBI_permits_' + str(current_time.year) + str(current_time.month) + str(current_time.day) + str(current_time.hour) + str(current_time.minute)
+                self.sftp(submissions_csv, file_name + '.csv')
+                #file2 = open(file_name + '.csv', "w")  # write mode
+                #file2.write(str(submissions_csv))
+                #file2.close()
                 msg = subject_name
                 msg += " with export to PTS status, "
                 msg += str(len(responses)) + " Submissions"
@@ -68,15 +73,21 @@ class Export():
                     file_name = re.sub("[^0-9a-zA-Z-_]+", "-", subject_name)
                     file_name += "-"+str(start_datetime_obj.date())+".csv"
 
+                    recipients = {
+                        'from_email': sendgrid.helpers.mail.Email(os.environ.get('EXPORT_EMAIL_FROM')),
+                        'to_emails': os.environ.get('EXPORT_EMAIL_TO'),
+                        'cc_emails': os.environ.get('EXPORT_EMAIL_CC', None),
+                        'bcc_emails': os.environ.get('EXPORT_EMAIL_BCC', None)
+                    }
                     self.email(
+                        recipients,
                         subject,
                         content=msg,
                         file_name=file_name,
-                        file_content=submissions_csv)
+                        file_content=submissions_csv.encode("utf-8"))
 
                 resp.body = json.dumps(jsend.success({'message': msg, 'responses':len(responses)}))
                 resp.status = falcon.HTTP_200
-
                 sentry_sdk.capture_message('PTS Dispatch Export', 'info')
 
         #pylint: disable=broad-except
@@ -94,6 +105,7 @@ class Export():
     def sftp(self, data, file_name):
         """ uploads data to sftp folder """
         files = {'file': (file_name, data, 'text/plain', {'Expires': '0'})}
+        #reset exported file name
 
         headers = {
             'ACCESS_KEY': os.environ.get('SFDS_SFTP_ACCESS_KEY'),
@@ -115,21 +127,23 @@ class Export():
             files=files,
             headers=headers,
             params=params)
+        #if result:
+            #set exported file name for process_result
         return result
 
-    def email(self, subject, content="Hi", file_name=None, file_content=None):
+    #pylint: disable=too-many-arguments
+    def email(self, recipients, subject, content="Hi", file_name=None, file_content=None):
         """ Email CSV """
         #pylint: disable=too-many-locals
 
         with sentry_sdk.configure_scope() as scope:
             scope.set_extra('email.subject', subject)
+        from_email = recipients['from_email']
+        to_emails = recipients['to_emails']
+        cc_emails = recipients['cc_emails']
+        bcc_emails = recipients['bcc_emails']
 
-        from_email = sendgrid.helpers.mail.Email(os.environ.get('EXPORT_EMAIL_FROM'))
-        to_emails = os.environ.get('EXPORT_EMAIL_TO')
-        cc_emails = os.environ.get('EXPORT_EMAIL_CC', None)
-        bcc_emails = os.environ.get('EXPORT_EMAIL_BCC', None)
-
-        content = sendgrid.helpers.mail.Content("text/plain", content)
+        content = sendgrid.helpers.mail.Content("text/html", content)
 
         mail = sendgrid.helpers.mail.Mail(
             from_email=from_email,
@@ -151,7 +165,7 @@ class Export():
         mail.add_personalization(personalization)
 
         if file_content:
-            encoded = base64.b64encode(file_content.encode("utf-8")).decode()
+            encoded = base64.b64encode(file_content).decode() #not all attachments can be encoded to utf
             attachment = sendgrid.helpers.mail.Attachment()
             attachment.file_content = sendgrid.helpers.mail.FileContent(encoded)
             attachment.file_type = sendgrid.helpers.mail.FileType('text/csv')

@@ -6,6 +6,7 @@ import sentry_sdk
 import falcon
 from .resources.welcome import Welcome
 from .resources.export import Export
+from .modules.process_result import ProcessResultFile
 
 def start_service():
     """Start this service
@@ -17,6 +18,7 @@ def start_service():
     api = falcon.API()
     api.add_route('/welcome', Welcome())
     api.add_route('/export', Export())
+    api.add_route('/processResultFile', ProcessResultFile())
     api.add_sink(default_error, '')
     return api
 

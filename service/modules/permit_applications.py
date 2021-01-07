@@ -33,5 +33,36 @@ class PermitApplication():
             params=query_params
         )
         response.raise_for_status()
+        print(response.json())
+        return response.json()
 
+    @staticmethod
+    def update_status(
+            formio_id,
+            base_url=None,
+            formio_api_key=None
+        ):
+        """ update actionState based on the status of csv export """
+
+        base_url = base_url if base_url else os.environ.get('API_BASE_URL')
+        api_key = formio_api_key if formio_api_key else os.environ.get('X_APIKEY')
+
+        headers = {
+            'accept': 'application/json',
+            'x-apikey': '{}'.format(api_key),
+            'Content-Type': 'application/json'
+        }
+        payload = '{"actionState" : "Done"}'
+        url = '{base_url}/{submission_endpoint}/{id}'.format(
+            base_url=base_url,
+            submission_endpoint='applications',
+            id=formio_id
+        )
+
+        response = requests.patch(
+            url,
+            headers=headers,
+            data=payload
+        )
+        response.raise_for_status()
         return response.json()

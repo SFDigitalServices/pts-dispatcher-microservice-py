@@ -10,22 +10,23 @@ class FieldMaps():
     cur_path = os.path.dirname(__file__)
 
     @staticmethod
-    def map_key_value(map_type, key):
+    def map_key_value(key, key_value):
         """ converts field values defined in field_configs.py: map_field_configs
             to MIS accepted values using mapping data in data/*.json
         """
-        ret = None
-        with open(FieldMaps.cur_path + '/data/' + FieldMaps.get_map_file(map_type), 'r') as file:
+        ret = key_value
+        with open(FieldMaps.cur_path + '/data/' + FieldMaps.get_map_file(key), 'r') as file:
             map_object = json.loads(file.read())
         # mutli-select values that need to be mapped
-        if key and ',' in key:
-            list_values = key.split(',')
+        if key_value and ',' in key_value:
+            list_values = key_value.strip('"').split(',')
             r_values = []
             for value in list_values:
-                r_values.append(map_object[value.strip()])
+                if value.strip() in map_object:
+                    r_values.append(map_object[value.strip()])
             ret = ','.join(r_values)
-        elif key and key in map_object:
-            ret = map_object[key]
+        elif key_value and key_value in map_object:
+            ret = map_object[key_value]
         return ret
 
     @staticmethod
