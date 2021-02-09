@@ -1,5 +1,6 @@
 """Functions related to interacting with building permit applications."""
 import os
+import logging
 import requests
 
 # pylint: disable=too-few-public-methods
@@ -26,15 +27,23 @@ class PermitApplication():
             base_url=base_url,
             submission_endpoint='applications'
         )
-
-        response = requests.get(
-            url,
-            headers=headers,
-            params=query_params
-        )
-        response.raise_for_status()
-        print(response.json())
-        return response.json()
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                params=query_params
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError:
+            logging.exception("HTTPError: no record found")
+        except requests.exceptions.ConnectionError as errc:
+            logging.exception("Error Connecting: %s", errc)
+        except requests.exceptions.Timeout as errt:
+            logging.exception("Timeout Error: %s", errt)
+        except requests.exceptions.RequestException as err:
+            logging.exception("OOps: Something Else: %s", err)
+        return ''
 
     @staticmethod
     def update_status(
@@ -58,11 +67,19 @@ class PermitApplication():
             submission_endpoint='applications',
             id=formio_id
         )
-
-        response = requests.patch(
-            url,
-            headers=headers,
-            data=payload
-        )
-        response.raise_for_status()
-        return response.json()
+        try:
+            response = requests.patch(
+                url,
+                headers=headers,
+                data=payload
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as errh:
+            logging.exception("HTTPError: %s", errh)
+        except requests.exceptions.ConnectionError as errc:
+            logging.exception("Error Connecting: %s", errc)
+        except requests.exceptions.Timeout as errt:
+            logging.exception("Timeout Error: %s", errt)
+        except requests.exceptions.RequestException as err:
+            logging.exception("OOps: Something Else: %s", err)

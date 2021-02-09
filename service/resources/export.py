@@ -1,5 +1,6 @@
 """Welcome export module"""
 import os
+import sys
 import json
 import datetime
 import base64
@@ -57,13 +58,16 @@ class Export():
                 if sftp_upload:
                     sep = '|'
                 submissions_csv = ExportSubmissionsTransform().transform(responses, sep)
+
                 #DBI_permits_YYYYMMDDHHMI.csv  where HH = 24 hour clock Mi  = minutes
                 current_time = datetime.datetime.now(timezone)
                 file_name = 'DBI_permits_' + str(current_time.year) + str(current_time.month) + str(current_time.day) + str(current_time.hour) + str(current_time.minute)
-                self.sftp(submissions_csv, file_name + '.csv')
-                #file2 = open(file_name + '.csv', "w")  # write mode
-                #file2.write(str(submissions_csv))
-                #file2.close()
+                #uploaded = self.sftp(submissions_csv, file_name + '.csv')
+                #if uploaded:
+                self.log_submissions(file_name, submissions_csv)
+                #else:
+                    # notify failure
+
                 msg = subject_name
                 msg += " with export to PTS status, "
                 msg += str(len(responses)) + " Submissions"
@@ -121,14 +125,22 @@ class Export():
             'remotepath': '', # user home folder
             'filename': file_name
         }
+        result = None
+        try:
+            result = requests.post(
+                os.environ.get('SFTP_ENDPOINT'),
+                files=files,
+                headers=headers,
+                params=params)
+        except requests.exceptions.HTTPError as errh:
+            logging.exception("HTTPError: %s", errh)
+        except requests.exceptions.ConnectionError as errc:
+            logging.exception("Error Connecting: %s", errc)
+        except requests.exceptions.Timeout as errt:
+            logging.exception("Timeout Error: %s", errt)
+        except requests.exceptions.RequestException as err:
+            logging.exception("OOps: Something Else: %s", err)
 
-        result = requests.post(
-            os.environ.get('SFTP_ENDPOINT'),
-            files=files,
-            headers=headers,
-            params=params)
-        #if result:
-            #set exported file name for process_result
         return result
 
     #pylint: disable=too-many-arguments
@@ -186,3 +198,22 @@ class Export():
         """
         sg_api = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
         return sg_api.client.mail.send.post(request_body=data)
+
+    @staticmethod
+    def log_submissions(file_name, submissions_csv):
+        """ log uploaded file name and data to file for proccess_result """
+        data_file_path = os.path.dirname(__file__)
+        try:
+            with open(data_file_path + '/data/exported_data/' + file_name + '.csv', "w", encoding='cp1252') as submission_file:
+                submission_file.write(submissions_csv)
+            # keep filename for proccess_result
+            with open(data_file_path + '/data/exported_data/current_file_name.txt', "w") as current_timestamp_file:
+                current_timestamp_file.write(file_name)
+
+        except IOError as err:
+            logging.exception("I/O error(%s): %s", err.errno, err.strerror)
+        except Exception: #pylint: disable=broad-except
+            logging.exception("Unexpected error: %s", format(sys.exc_info()[0]))
+
+
+

@@ -1,5 +1,8 @@
 """ Export Submissions Transform module """
 #pylint: disable=too-few-public-methods
+import os
+import sys
+import logging
 import pandas as pd
 from .transform import TransformBase
 from ..resources.field_configs import FieldConfigs
@@ -18,20 +21,21 @@ class ExportSubmissionsTransform(TransformBase):
         output = self.to_csv(output, sep)
         return output
 
-    # pylint: disable=R0201
+    # pylint: disable=R0201, disable=too-many-nested-blocks
     def get_data(self, submission):
         """
         Get data from submission object
         """
-        # skip permit type = existingPermitApplication submissions
-        #pylint: disable=too-many-nested-blocks
-        if submission['data']['permitType'] and submission['data']['permitType'] != 'existingPermitApplication':
-            output = {}
+        output = {}
+        # exclude permit type = existingPermitApplication submissions and bluebeam fails
+        if not self.exclude_submissions(submission):
             data = submission['data']
+            # support old submissions
+            if data.get('permitType', '') == 'revisionToAnIssuedPermit':
+                data['permitType'] = 'permitRevision'
 
             output['id'] = submission['_id']
             output['created'] = submission['created']
-            #pylint: disable=too-many-nested-blocks
             for key in data:
                 # flatten list values
                 if isinstance(data[key], list):
@@ -106,10 +110,39 @@ class ExportSubmissionsTransform(TransformBase):
                             output[key] = self.pretty_phonenumber(data[key])
                     # cleanse characters that break the csv
                     elif isinstance(data[key], (str, bytes)):
-                        output[key] = data[key].replace('\n', '\t').replace('|', '')
+                        output[key] = " ".join(data[key].split()).replace('|', '').strip("\r\n")
                 # relabel field, if necessary
                 relabel_field = FieldConfigs.get_relabel_fields(key)
                 if relabel_field:
                     output[relabel_field] = output.pop(key)
+            # reorder fields specific to MIS
             output = self.reorder_fields(output)
         return output
+
+    def exclude_submissions(self, submission):
+        """ exclude submissions that meet conditions """
+        if submission['data'].get('permitType', '') != 'existingPermitApplication':
+            return False
+        if submission['data'].get('bluebeamStatus', '') != '':
+            self.bb_upload_fail_records(submission)
+            return False
+        return True
+
+    def bb_upload_fail_records(self, submission):
+        """ handles failed bluebeam upload failures """
+        # log fails to a file for process_result to pick up
+        failed = {
+            "formio_id": submission.get('_id'),
+            "status": "Error",
+            "bluebeamStatus": submission['data'].get('bluebeamStatus', '')
+        }
+        data_file_path = os.path.dirname(__file__) + '../resources/data/exported_data/'
+        with open(data_file_path + 'bb_failed_records.txt', "w") as bb_failed_records_file:
+            try:
+                bb_failed_records_file.write(failed['formio_id'] + '|' + failed['status'] + '|' + failed['bluebeamStatus'])
+            except IOError as err:
+                logging.exception("I/O error(%s): %s", err.errno, err.strerror)
+            except Exception: #pylint: disable=broad-except
+                logging.exception("Unexpected error: %s", format(sys.exc_info()[0]))
+
+            bb_failed_records_file.close()

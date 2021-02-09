@@ -15,7 +15,7 @@ class FieldMaps():
             to MIS accepted values using mapping data in data/*.json
         """
         ret = key_value
-        with open(FieldMaps.cur_path + '/data/' + FieldMaps.get_map_file(key), 'r') as file:
+        with open(FieldMaps.cur_path + '/data/mappings/' + FieldMaps.get_map_file(key), 'r') as file:
             map_object = json.loads(file.read())
         # mutli-select values that need to be mapped
         if key_value and ',' in key_value:
@@ -25,8 +25,11 @@ class FieldMaps():
                 if value.strip() in map_object:
                     r_values.append(map_object[value.strip()])
             ret = ','.join(r_values)
+            ret = ret[:10] # 10 characters
         elif key_value and key_value in map_object:
             ret = map_object[key_value]
+        else:
+            ret = ''
         return ret
 
     @staticmethod

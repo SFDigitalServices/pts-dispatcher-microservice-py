@@ -6,7 +6,7 @@ class FieldConfigs():
      """
 
     # will move this to client side in the POST body when we implement do_post()
-    map_field_configs = {'building_use': {'existingBuildingPresentUse', 'proposedUse', 'newBuildingUse'}, \
+    map_field_configs = {'building_use': {'existingBuildingPresentUseOther', 'proposedUseOther', 'newBuildingUseOther'}, \
         'construction_type': {'existingBuildingConstructionType', 'typeOfConstruction', 'newTypeOfConstruction'}, \
         'occupancy_code': {'existingBuildingOccupancyClass', 'newOccupancyClass', 'occupancyClass'}, 'street_suffix_fields': {'projectAddressStreetType'}, \
         'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}}
@@ -38,16 +38,16 @@ class FieldConfigs():
                   "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
                   "contractorOrganizationName", "contractorName", "contractorEmail", "contractorLicenseNumber",
                   "contractorBTRC", "existingBuildingConstructionType", "existingBuildingDwellingUnits", "existingBuildingOccupancyStories",
-                  "existingBuildingBasementsAndCellars", "existingBuildingPresentUse", "existingBuildingOccupancyClass",
+                  "existingBuildingBasementsAndCellars", "existingBuildingPresentUseOther", "existingBuildingOccupancyClass",
                   "sitePermitForm38", "sitePermitForm12", "estimatedCostOfProject", "projectDescription", "typeOfConstruction",
-                  "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUse", "occupancyClass"
+                  "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUseOther", "occupancyClass"
                   "electricalWork", "plumbingWork", "deckOrHorizontalExtension", "affordableHousing", "accessoryDwellingUnit", "bluebeamId", "noPlansPermit",
                   "projectAddressNumber", "projectAddressNumberSuffix", "projectAddressStreetName", "projectAddressUnitNumber", "projectAddressStreetType",
                   "projectAddressBlock", "projectAddressLot",
                   "engineerOrganizationName", "engineerName", "engineerEmail", "engineerLicenseNumber",
                   "architectOrganizationName", "architectName", "architectEmail", "architectLicenseNumber",
                   "agentOrganizationName", "agentName", "agentEmail",
-                  "attorneyOrganizationName", "attorneyName", "attorneyEmail", "notes"]
+                  "attorneyOrganizationName", "attorneyName", "attorneyEmail", "notes", "workersCompSelectboxes", "carrier", "policyNumber"]
 
     ordered_fields = ["id", "created", "permitType", "reviewOverTheCounter", "onlyFireDepartmentReview", "applicantType", "applicantFirstName",
                       "applicantLastName", "applicantPhoneNumber", "applicantEmail", "applicantCompanyName", "applicantAddress1", "applicantAddress2", "applicantStreetSuffix",
@@ -56,20 +56,20 @@ class FieldConfigs():
                       "contractorOrganizationName", "contractorFirstName", "contractorLastName", "contractorEmail", "contractorLicenseNumber",
                       "contractorBTRC", "existingBuildingConstructionType", "existingBuildingDwellingUnits", "existingBuildingOccupancyStories",
                       "existingBuildingBasementsAndCellars",
-                      "existingBuildingPresentUse", "existingBuildingOccupancyClass", "existingFireRating", "sitePermit", "estimatedCostOfProject",
+                      "existingBuildingPresentUseOther", "existingBuildingOccupancyClass", "existingFireRating", "sitePermit", "estimatedCostOfProject",
                       "projectDescription", "proposedTypeOfConstruction", "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars",
-                      "proposedBasementsAndCellars", "proposedUse", "proposedFireRating", "proposedOccupancyClass",
+                      "proposedBasementsAndCellars", "proposedUseOther", "proposedFireRating", "proposedOccupancyClass",
                       "electricalWork", "plumbingWork", "deckOrHorizontalExtension", "affordableHousing", "accessoryDwellingUnit", "accessoryDwellingUnit2", "bluebeamId", "noPlansPermit",
                       "projectAddressNumber", "projectAddressNumberSuffix", "projectAddressStreetName", "projectAddressStreetType", "projectAddressUnitNumber",
                       "projectAddressBlock", "projectAddressLot",
                       "engineerOrganizationName", "engineerFirstName", "engineerLastName", "engineerEmail", "engineerLicenseNumber", "engineerPhoneNumber", "engineerAddress1",
                       "engineerAddress2", "engineerCity", "engineerState", "engineerZipCode",
                       "architectOrganizationName", "architectFirstName", "architectLastName", "architectEmail", "architectLicenseNumber", "architectPhoneNumber", "architectAddress1",
-                      "architectAddress2", "architectState", "architectZipCode",
+                      "architectAddress2", "architectCity", "architectState", "architectZipCode",
                       "agentOrganizationName", "agentFirstName", "agentLastName", "agentEmail", "agentPhoneNumber", "agenttAddress1",
                       "agentAddress2", "agentCity", "agentState", "agentZipCode",
                       "attorneyOrganizationName", "attorneyFirstName", "attorneyLastName", "attorneyEmail", "attorneyPhoneNumber", "attorneyAddress1",
-                      "attorneyAddress2", "attorneyCity", "attorneyState", "attorneyZipCode", "notes"]
+                      "attorneyAddress2", "attorneyCity", "attorneyState", "attorneyZipCode", "notes", "workersCompSelectboxes", "carrier", "policyNumber"]
 
     @staticmethod
     def get_field_key(value, field_type):

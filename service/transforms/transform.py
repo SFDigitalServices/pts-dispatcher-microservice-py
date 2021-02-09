@@ -58,10 +58,13 @@ class TransformBase():
     @staticmethod
     def add_fire_rating(key, value, output):
         """ set mapping key for Fire Rating and proposed Fire Rating """
+        # fire rating only allow 1 character
         if key == 'existingBuildingConstructionType':
-            output['existingFireRating'] = FieldMaps.map_key_value('fire_rating', value)
+            output['existingFireRating'] = FieldMaps.map_key_value('fire_rating', value)[:1]
+            output['existingBuildingConstructionType'] = output['existingBuildingConstructionType'][:1]
         elif key == 'typeOfConstruction':
-            output['proposedFireRating'] = FieldMaps.map_key_value('fire_rating', value)
+            output['proposedFireRating'] = FieldMaps.map_key_value('fire_rating', value)[:1]
+            output['typeOfConstruction'] = output['typeOfConstruction'][:1]
 
         return output
 
@@ -125,6 +128,9 @@ class TransformBase():
             data['projectDescription'] = 'Revision to ' + bpa + data['projectDescription']
             data.pop('buildingPermitApplicationNumber', None)
 
+            # convert 'agent' to 'AUTHORIZED AGENT'
+            if data.get('applicantType', '') == 'agent':
+                data['applicantType'] = 'AUTHORIZED AGENT-OTHERS'
             #convert bool values
             data = TransformBase.convert_bool_fields(data)
         return data
@@ -132,12 +138,13 @@ class TransformBase():
     @staticmethod
     def map_new_proposed(data):
         """ maps new to proposed """
-        data['projectDescription'] = data['newProjectDescription']
-        data['typeOfConstruction'] = data['newTypeOfConstruction']
-        data['occupancyClass'] = data['newOccupancyClass']
-        data['proposedDwellingUnits'] = data['newDwellingUnits']
-        data['proposedOccupancyStories'] = data['newOccupancyStories']
-        data['proposedBasementsAndCellars'] = data['newBasements']
+        data['projectDescription'] = data.get('newProjectDescription', '')
+        data['typeOfConstruction'] = data.get('newTypeOfConstruction', '')
+        data['occupancyClass'] = data.get('newOccupancyClass', '')
+        data['proposedDwellingUnits'] = data.get('newDwellingUnits', '')
+        data['proposedOccupancyStories'] = data.get('newOccupancyStories', '')
+        data['proposedBasementsAndCellars'] = data.get('newBasements', '')
+        data['proposedUseOther'] = data.get('newBuildingUseOther', '')
 
         return data
 
@@ -193,4 +200,17 @@ class TransformBase():
                     data[key] = 'N'
                 else:
                     data[key] = ''
+        return data
+
+    @staticmethod
+    def convert_workmencomp(data):
+        """ convert worker's comp data to a string of 0 and 1 """
+        ret = ''
+        if data['workersCompSelectboxes']:
+            ret = '1' if data['workersCompSelectboxes']['Have_certificate_of_consent'] == 'TRUE' else '0'
+            ret += '1' if data['workersCompSelectboxes']['Have_workers_comp_insurance'] == 'TRUE' else '0'
+            ret += '1' if data['workersCompSelectboxes']['Not_subject_to_workers_comp'] == 'TRUE' else '0'
+            ret += '1' if data['workersCompSelectboxes']['Will_comply_with_all_laws'] == 'TRUE' else '0'
+            ret += '1' if data['workersCompSelectboxes']['Work_less_than_'] == 'TRUE' else '0'
+        data = data['workersCompSelectboxes'] = ret
         return data
