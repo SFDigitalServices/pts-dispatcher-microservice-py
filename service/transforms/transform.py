@@ -114,9 +114,6 @@ class TransformBase():
             for key in copy_data:
                 if not FieldConfigs.is_pts_fields(key):
                     data.pop(key, None)
-                if FieldConfigs.is_missing_field(key):
-                    data.pop(key, None)
-                    data = TransformBase.add_missing_fields(key, data)
 
             # set site permit field
             data['sitePermit'] = data['sitePermitForm38'] if data['sitePermitForm38'] else data['sitePermitForm12']
@@ -131,6 +128,7 @@ class TransformBase():
             # convert 'agent' to 'AUTHORIZED AGENT'
             if data.get('applicantType', '') == 'agent':
                 data['applicantType'] = 'AUTHORIZED AGENT-OTHERS'
+
             #convert bool values
             data = TransformBase.convert_bool_fields(data)
         return data
@@ -147,36 +145,6 @@ class TransformBase():
         data['proposedUseOther'] = data.get('newBuildingUseOther', '')
 
         return data
-
-    @staticmethod
-    def add_missing_fields(key, output):
-        """ add missing MIS fields """
-        address_prefix = ''
-        if key == 'ownerName':
-            address_prefix = 'owner'
-        elif key == 'contractorName':
-            address_prefix = 'contractor'
-        elif key == 'engineerName':
-            address_prefix = 'engineer'
-        elif key == 'architectName':
-            address_prefix = 'architect'
-        elif key == 'agentName':
-            address_prefix = 'contractor'
-        elif key == 'attorneyName':
-            address_prefix = 'attorney'
-
-        if address_prefix != '':
-            output[address_prefix + 'FirstName'] = ''
-            output[address_prefix + 'LastName'] = ''
-            if address_prefix != 'owner':
-                output[address_prefix + 'PhoneNumber'] = ''
-                output[address_prefix + 'Address1'] = ''
-                output[address_prefix + 'Address2'] = ''
-                output[address_prefix + 'City'] = ''
-                output[address_prefix + 'State'] = ''
-                output[address_prefix + 'ZipCode'] = ''
-
-        return output
 
     @staticmethod
     def reorder_fields(data):
@@ -203,14 +171,14 @@ class TransformBase():
         return data
 
     @staticmethod
-    def convert_workmencomp(data):
+    def convert_workmencomp(value):
         """ convert worker's comp data to a string of 0 and 1 """
         ret = ''
-        if data['workersCompSelectboxes']:
-            ret = '1' if data['workersCompSelectboxes']['Have_certificate_of_consent'] == 'TRUE' else '0'
-            ret += '1' if data['workersCompSelectboxes']['Have_workers_comp_insurance'] == 'TRUE' else '0'
-            ret += '1' if data['workersCompSelectboxes']['Not_subject_to_workers_comp'] == 'TRUE' else '0'
-            ret += '1' if data['workersCompSelectboxes']['Will_comply_with_all_laws'] == 'TRUE' else '0'
-            ret += '1' if data['workersCompSelectboxes']['Work_less_than_'] == 'TRUE' else '0'
-        data = data['workersCompSelectboxes'] = ret
-        return data
+        if value:
+            ret = '1' if value['Have_certificate_of_consent'] == 'TRUE' else '0'
+            ret += '1' if value['Have_workers_comp_insurance'] == 'TRUE' else '0'
+            ret += '1' if value['Not_subject_to_workers_comp'] == 'TRUE' else '0'
+            ret += '1' if value['Will_comply_with_all_laws/ordinances'] == 'TRUE' else '0'
+            ret += '1' if value['Work_less_than_$100'] == 'TRUE' else '0'
+
+        return ret

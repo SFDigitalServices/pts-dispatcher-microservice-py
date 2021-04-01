@@ -12,6 +12,7 @@ class PermitApplication():
             query_params,
             base_url=None,
             formio_api_key=None,
+            submission_endpoint='applications'
         ):
         """Given a query parameters, retreive submissions """
 
@@ -25,7 +26,7 @@ class PermitApplication():
 
         url = '{base_url}/{submission_endpoint}'.format(
             base_url=base_url,
-            submission_endpoint='applications'
+            submission_endpoint=submission_endpoint
         )
         try:
             response = requests.get(
@@ -49,7 +50,8 @@ class PermitApplication():
     def update_status(
             formio_id,
             base_url=None,
-            formio_api_key=None
+            formio_api_key=None,
+            submission_endpoint='applications'
         ):
         """ update actionState based on the status of csv export """
 
@@ -64,7 +66,7 @@ class PermitApplication():
         payload = '{"actionState" : "Done"}'
         url = '{base_url}/{submission_endpoint}/{id}'.format(
             base_url=base_url,
-            submission_endpoint='applications',
+            submission_endpoint=submission_endpoint,
             id=formio_id
         )
         try:

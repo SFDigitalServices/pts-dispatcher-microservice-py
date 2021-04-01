@@ -49,6 +49,8 @@ class Export():
                 scope.set_extra('formio_query', formio_query)
 
             responses = PermitApplication.get_applications_by_query(formio_query)
+            #with open('response_file', 'w', encoding='cp1252') as file_pointer:
+                #file_pointer.write(str(responses))
 
             send_email = bool(req.params['send_email']) if 'send_email' in req.params else False
             sftp_upload = bool(req.params['sftp_upload']) if 'sftp_upload' in req.params else False
@@ -214,6 +216,3 @@ class Export():
             logging.exception("I/O error(%s): %s", err.errno, err.strerror)
         except Exception: #pylint: disable=broad-except
             logging.exception("Unexpected error: %s", format(sys.exc_info()[0]))
-
-
-

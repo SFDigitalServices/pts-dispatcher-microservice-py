@@ -16,10 +16,12 @@ class ExportSubmissionsTransform(TransformBase):
         """
         output = list(map(self.get_data, data))
         output = list(map(self.pretty_format, output))
-        output = [i for i in output if i is not None]
+        output = [i for i in output if i != {}]
         output = self.normalize(output)
         output = self.to_csv(output, sep)
-        return output
+        # set encoding to windows-cp1252
+        encoded_output = bytes(output, 'cp1252').decode('cp1252', 'ignore')
+        return encoded_output
 
     # pylint: disable=R0201, disable=too-many-nested-blocks
     def get_data(self, submission):
@@ -61,6 +63,8 @@ class ExportSubmissionsTransform(TransformBase):
                     # flatten nested address fields
                     elif FieldConfigs.is_nested_address_field(key):
                         output = self.convert_address_fields(key, data[key], output)
+                    elif key == 'workersCompSelectboxes':
+                        output[key] = self.convert_workmencomp(data[key])
                     else:
                         multi_selects = []
                         for multi_key, multi_value in data[key].items():
@@ -69,7 +73,10 @@ class ExportSubmissionsTransform(TransformBase):
                         output[key] = ', '.join(multi_selects)
                 else:
                     output[key] = data[key]
-        return output
+            #if output['id'] == '6027006df6281e2cae70dd1b':
+                #raw_string = r"{}".format(output['projectDescription'])
+                #print(raw_string)
+            return output
 
     def normalize(self, data):
         """
@@ -121,10 +128,10 @@ class ExportSubmissionsTransform(TransformBase):
 
     def exclude_submissions(self, submission):
         """ exclude submissions that meet conditions """
-        if submission['data'].get('permitType', '') != 'existingPermitApplication':
-            return False
-        if submission['data'].get('bluebeamStatus', '') != '':
+        if submission['data'].get('bluebeamStatus', '') == 'Error':
             self.bb_upload_fail_records(submission)
+            return False
+        if submission['data'].get('permitType', '') != 'existingPermitApplication':
             return False
         return True
 
@@ -136,10 +143,12 @@ class ExportSubmissionsTransform(TransformBase):
             "status": "Error",
             "bluebeamStatus": submission['data'].get('bluebeamStatus', '')
         }
-        data_file_path = os.path.dirname(__file__) + '../resources/data/exported_data/'
-        with open(data_file_path + 'bb_failed_records.txt', "w") as bb_failed_records_file:
+        data_file_path = os.path.dirname(__file__) + '/../resources/data/exported_data/'
+        # write failed bluebeam for process_result, need to delete the file after it has been processed.
+        with open(data_file_path + 'bb_failed_records.txt', "a") as bb_failed_records_file:
             try:
                 bb_failed_records_file.write(failed['formio_id'] + '|' + failed['status'] + '|' + failed['bluebeamStatus'])
+                bb_failed_records_file.write('\n')
             except IOError as err:
                 logging.exception("I/O error(%s): %s", err.errno, err.strerror)
             except Exception: #pylint: disable=broad-except

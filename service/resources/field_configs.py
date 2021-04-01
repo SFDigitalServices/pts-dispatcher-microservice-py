@@ -12,7 +12,7 @@ class FieldConfigs():
         'state_fields': {'Page2State', 'ownerState', 'constructionLenderState', 'existingBuildingState', 'constructionLenderState1'}}
 
     pretty_field_configs = {
-        'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber'}
+        'phone_fields': {'applicantPhoneNumber', 'ownerPhoneNumber', 'engineerPhoneNumber', 'agentPhoneNumber', 'attorneyPhoneNumber', 'architectPhoneNumber'}
     }
 
     # new construction fields, map them to proposed
@@ -20,8 +20,6 @@ class FieldConfigs():
 
     # addresses that have nested structure
     address_fields = ["ownerAddress", "applicantAddress"]
-
-    missing_fields = ["ownerName", "contractorName", "engineerName", "architectName", "agentName", "attorneyName"]
 
     # fields that need to be convert to Yes/No instead of True/False
     convert_bool_fields = ["onlyFireDepartmentReview"]
@@ -35,19 +33,23 @@ class FieldConfigs():
     pts_fields = ["id", "created", "permitType", "reviewOverTheCounter", "onlyFireDepartmentReview", "applicantType", "applicantFirstName", "buildingPermitApplicationNumber",
                   "applicantLastName", "applicantPhoneNumber", "applicantEmail", "applicantAddress1", "applicantAddress2", "applicantCity", "applicantState",
                   "applicantZipCode", "applicantContractorLicenseNumber", "applicantBTRC", "applicantArchitectLicenseNumber", "applicantEngineerLicenseNumber",
-                  "ownerName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
-                  "contractorOrganizationName", "contractorName", "contractorEmail", "contractorLicenseNumber",
+                  "ownerFirstName", "ownerLastName", "ownerPhoneNumber", "ownerEmail", "ownerAddress1", "ownerAddress2", "ownerCity", "ownerState", "ownerZipCode",
+                  "contractorOrganizationName", "contractorFirstName", "contractorLastName", "contractorEmail", "contractorLicenseNumber",
                   "contractorBTRC", "existingBuildingConstructionType", "existingBuildingDwellingUnits", "existingBuildingOccupancyStories",
                   "existingBuildingBasementsAndCellars", "existingBuildingPresentUseOther", "existingBuildingOccupancyClass",
                   "sitePermitForm38", "sitePermitForm12", "estimatedCostOfProject", "projectDescription", "typeOfConstruction",
-                  "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUseOther", "occupancyClass"
+                  "proposedDwellingUnits", "proposedOccupancyStories", "proposedBasementsAndCellars", "proposedBasementsAndCellars", "proposedUseOther", "occupancyClass",
                   "electricalWork", "plumbingWork", "deckOrHorizontalExtension", "affordableHousing", "accessoryDwellingUnit", "bluebeamId", "noPlansPermit",
                   "projectAddressNumber", "projectAddressNumberSuffix", "projectAddressStreetName", "projectAddressUnitNumber", "projectAddressStreetType",
                   "projectAddressBlock", "projectAddressLot",
-                  "engineerOrganizationName", "engineerName", "engineerEmail", "engineerLicenseNumber",
-                  "architectOrganizationName", "architectName", "architectEmail", "architectLicenseNumber",
-                  "agentOrganizationName", "agentName", "agentEmail",
-                  "attorneyOrganizationName", "attorneyName", "attorneyEmail", "notes", "workersCompSelectboxes", "carrier", "policyNumber"]
+                  "engineerOrganizationName", "engineerFirstName", "engineerLastName", "engineerEmail", "engineerLicenseNumber", "engineerPhoneNumber", "engineerAddress1",
+                  "engineerAddress2", "engineerCity", "engineerState", "engineerZipCode",
+                  "architectOrganizationName", "architectFirstName", "architectLastName", "architectEmail", "architectLicenseNumber", "architectPhoneNumber", "architectAddress1",
+                  "architectAddress2", "architectCity", "architectState", "architectZipCode",
+                  "agentOrganizationName", "agentFirstName", "agentLastName", "agentEmail", "agentPhoneNumber", "agenttAddress1",
+                  "agentAddress2", "agentCity", "agentState", "agentZipCode",
+                  "attorneyOrganizationName", "attorneyFirstName", "attorneyLastName", "attorneyEmail", "attorneyPhoneNumber", "attorneyAddress1",
+                  "attorneyAddress2", "attorneyCity", "attorneyState", "attorneyZipCode", "notes", "workersCompSelectboxes", "carrier", "policyNumber"]
 
     ordered_fields = ["id", "created", "permitType", "reviewOverTheCounter", "onlyFireDepartmentReview", "applicantType", "applicantFirstName",
                       "applicantLastName", "applicantPhoneNumber", "applicantEmail", "applicantCompanyName", "applicantAddress1", "applicantAddress2", "applicantStreetSuffix",
@@ -89,11 +91,6 @@ class FieldConfigs():
     def is_nested_address_field(field):
         """ check address field is nested """
         return field and field in FieldConfigs.address_fields
-
-    @staticmethod
-    def is_missing_field(field):
-        """ check which MIS fields are missing """
-        return field and field in FieldConfigs.missing_fields
 
     @staticmethod
     def is_pts_fields(field):

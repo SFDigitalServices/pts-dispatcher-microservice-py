@@ -17,6 +17,9 @@ class FieldMaps():
         ret = key_value
         with open(FieldMaps.cur_path + '/data/mappings/' + FieldMaps.get_map_file(key), 'r') as file:
             map_object = json.loads(file.read())
+
+        if key == 'street_suffix_fields':
+            key_value = key_value.lower()
         # mutli-select values that need to be mapped
         if key_value and ',' in key_value:
             list_values = key_value.strip('"').split(',')
